@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IndexxADBMenu — Device Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0C0F;
+    --panel:#12161B;
+    --panel-2:#171C22;
+    --border:#242A31;
+    --text:#DCE2E8;
+    --muted:#7C8790;
+    --accent:#FF7A1A;
+    --accent-dim:#8A4416;
+    --ok:#4FD6C4;
+    --ok-dim:#1F4640;
+    --mono:'IBM Plex Mono', ui-monospace, monospace;
+    --sans:'IBM Plex Sans', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--bg); color:var(--text); font-family:var(--sans); height:100%;}
+  body{
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 42px 42px;
+    background-position: -1px -1px;
+    background-color: var(--bg);
+    background-blend-mode: normal;
+    min-height:100vh;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(255,122,26,0.10), transparent 60%);
+    pointer-events:none;
+  }
+  a{color:inherit;}
+  ::selection{background:var(--accent); color:#0A0C0F;}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+
+  /* Header */
+  header{
+    padding:56px 0 40px;
+    border-bottom:1px solid var(--border);
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:14px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow .dot{width:6px; height:6px; background:var(--accent); border-radius:50%; box-shadow:0 0 8px var(--accent);}
+  h1{
+    font-family:var(--mono); font-weight:700; font-size:clamp(32px,5vw,52px);
+    letter-spacing:-0.02em; line-height:1.05; margin-bottom:16px;
+  }
+  h1 span{color:var(--accent);}
+  .sub{color:var(--muted); font-size:16px; max-width:560px; line-height:1.6;}
+
+  /* Connect panel */
+  .connect-panel{
+    margin-top:40px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:28px;
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap:24px;
+    align-items:center;
+  }
+  .status-row{display:flex; align-items:center; gap:14px; margin-bottom:10px;}
+  .status-led{
+    width:10px; height:10px; border-radius:50%;
+    background:var(--muted);
+    transition:background .3s, box-shadow .3s;
+  }
+  .status-led.on{background:var(--ok); box-shadow:0 0 10px var(--ok);}
+  .status-led.err{background:var(--accent); box-shadow:0 0 10px var(--accent);}
+  .status-text{font-family:var(--mono); font-size:14px; color:var(--text);}
+  .status-detail{font-family:var(--mono); font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.7; white-space:pre-wrap;}
+  #connectBtn{
+    font-family:var(--mono); font-weight:600; font-size:14px;
+    background:var(--accent); color:#0A0C0F; border:none;
+    padding:14px 26px; border-radius:8px; cursor:pointer;
+    letter-spacing:0.02em;
+    transition:transform .15s, box-shadow .15s;
+    white-space:nowrap;
+  }
+  #connectBtn:hover{transform:translateY(-1px); box-shadow:0 6px 20px rgba(255,122,26,0.25);}
+  #connectBtn:active{transform:translateY(0);}
+  #connectBtn:disabled{opacity:.5; cursor:default; transform:none; box-shadow:none;}
+
+  .handshake{
+    margin-top:22px; padding-top:22px; border-top:1px solid var(--border);
+    display:flex; align-items:center; gap:0; font-family:var(--mono); font-size:11px; color:var(--muted);
+  }
+  .hs-node{
+    padding:6px 12px; border:1px solid var(--border); border-radius:6px;
+    background:var(--panel-2);
+  }
+  .hs-node.active{border-color:var(--ok); color:var(--ok);}
+  .hs-line{flex:1; height:1px; background:var(--border); position:relative; margin:0 6px; min-width:24px;}
+  .hs-line .pulse{
+    position:absolute; top:-2px; left:-4px; width:6px; height:6px; border-radius:50%;
+    background:var(--accent); opacity:0; box-shadow:0 0 8px var(--accent);
+  }
+  .hs-line.run .pulse{animation:travel 1.1s linear infinite;}
+  @keyframes travel{
+    0%{left:-4px; opacity:1;}
+    100%{left:calc(100% - 2px); opacity:0;}
+  }
+
+  .caveat{
+    margin-top:18px; font-size:13px; color:var(--muted); line-height:1.6;
+    border-left:2px solid var(--accent-dim); padding-left:14px;
+  }
+  .caveat strong{color:var(--text);}
+
+  /* Command dashboard */
+  .dash{padding:52px 0 80px;}
+  .dash-head{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:28px;}
+  .dash-head h2{font-family:var(--mono); font-size:22px; letter-spacing:-0.01em;}
+  .dash-head h2 .count{color:var(--muted); font-weight:400; font-size:14px;}
+
+  .search-box{
+    position:relative;
+    width:320px; max-width:100%;
+  }
+  .search-box input{
+    width:100%; background:var(--panel); border:1px solid var(--border); color:var(--text);
+    font-family:var(--mono); font-size:14px; padding:12px 14px 12px 38px; border-radius:8px;
+    outline:none; transition:border-color .15s;
+  }
+  .search-box input:focus{border-color:var(--accent);}
+  .search-box::before{
+    content:"›_"; position:absolute; left:14px; top:50%; transform:translateY(-50%);
+    color:var(--accent); font-family:var(--mono); font-size:14px; pointer-events:none;
+  }
+
+  .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px;}
+  .filter-chip{
+    font-family:var(--mono); font-size:12px; padding:7px 13px; border-radius:20px;
+    border:1px solid var(--border); background:var(--panel); color:var(--muted);
+    cursor:pointer; transition:all .15s; user-select:none;
+    text-transform:capitalize;
+  }
+  .filter-chip:hover{border-color:var(--accent-dim); color:var(--text);}
+  .filter-chip.active{background:var(--accent); border-color:var(--accent); color:#0A0C0F; font-weight:600;}
+
+  .cmd-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px;
+  }
+  .cmd-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:18px; cursor:pointer; transition:border-color .15s, transform .15s;
+    position:relative;
+  }
+  .cmd-card:hover{border-color:var(--accent-dim); transform:translateY(-2px);}
+  .cmd-cat{
+    font-family:var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:10px;
+  }
+  .cmd-code{
+    font-family:var(--mono); font-size:13.5px; color:var(--text); line-height:1.5;
+    word-break:break-word; margin-bottom:10px;
+  }
+  .cmd-desc{font-size:13px; color:var(--muted); line-height:1.5;}
+  .copy-flag{
+    position:absolute; top:16px; right:16px; font-family:var(--mono); font-size:11px;
+    color:var(--ok); opacity:0; transition:opacity .2s; pointer-events:none;
+  }
+  .copy-flag.show{opacity:1;}
+
+  .empty-state{
+    text-align:center; padding:60px 20px; color:var(--muted); font-family:var(--mono); font-size:14px;
+    border:1px dashed var(--border); border-radius:10px;
+  }
+
+  footer{
+    border-top:1px solid var(--border); padding:28px 0 50px;
+    font-family:var(--mono); font-size:12px; color:var(--muted);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+
+  @media (max-width:640px){
+    .connect-panel{grid-template-columns:1fr;}
+    #connectBtn{width:100%;}
+    .handshake{flex-wrap:wrap; row-gap:10px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hs-line.run .pulse{animation:none;}
+    #connectBtn:hover{transform:none;}
+    .cmd-card:hover{transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><span class="dot"></span>DEVICE CONSOLE</div>
+    <h1>Indexx<span>ADBMenu</span></h1>
+    <p class="sub">Detect A Connected Headset Over USB And Browse The Full Command Set — Search, Filter By Category, Click To Copy, Paste Into Your Terminal.</p>
+
+    <div class="connect-panel">
+      <div>
+        <div class="status-row">
+          <div class="status-led" id="statusLed"></div>
+          <div class="status-text" id="statusText">No Device Connected</div>
+        </div>
+        <div class="status-detail" id="statusDetail">Click Connect And Choose Your Headset From The Browser's Device Picker.</div>
+
+        <div class="handshake" id="handshake">
+          <div class="hs-node" id="hsUsb">USB PICK</div>
+          <div class="hs-line" id="hsLine1"><div class="pulse"></div></div>
+          <div class="hs-node" id="hsDesc">DESCRIPTORS</div>
+          <div class="hs-line" id="hsLine2"><div class="pulse"></div></div>
+          <div class="hs-node" id="hsAdb">ADB IFACE</div>
+        </div>
+
+        <div class="caveat">
+          <strong>Scope Note:</strong> This Identifies The Device And Confirms Its ADB USB Interface Is Present. Running Shell Commands From The Browser Requires The Full ADB Auth Handshake (RSA Key Signing), Which Isn't Implemented Here — Untested Crypto Isn't Something Worth Shipping. Use The Commands Below In Your Terminal For Actual Execution.
+        </div>
+      </div>
+      <button id="connectBtn">Connect Device</button>
+    </div>
+  </header>
+
+  <div class="dash">
+    <div class="dash-head">
+      <h2>Command Reference <span class="count" id="resultCount"></span></h2>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search Commands, Props, Keywords...">
+      </div>
+    </div>
+
+    <div class="filters" id="filters"></div>
+
+    <div class="cmd-grid" id="cmdGrid"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">No Commands Match That Search.</div>
+  </div>
+
+  <footer>
+    <div>IndexxADBMenu — Local Reference, Nothing Leaves Your Browser</div>
+    <div id="totalCount"></div>
+  </footer>
+</div>
+
+<script>
+// ---------- Command dataset ----------
+const COMMANDS = [
+  // Device / connection
+  {cat:"device", code:"adb devices -l", desc:"List Connected Devices With Details"},
+  {cat:"device", code:"adb connect <ip>:<port>", desc:"Connect To A Device Over WiFi/TCP"},
+  {cat:"device", code:"adb disconnect", desc:"Disconnect All TCP Devices"},
+  {cat:"device", code:"adb tcpip <port>", desc:"Switch Device To WiFi ADB Mode Over A Port"},
+  {cat:"device", code:"adb kill-server", desc:"Stop The ADB Server"},
+  {cat:"device", code:"adb start-server", desc:"Start The ADB Server"},
+  {cat:"device", code:"adb -s <serial> <cmd>", desc:"Target A Specific Device When Multiple Are Connected"},
+  {cat:"device", code:"adb reboot", desc:"Reboot The Device"},
+  {cat:"device", code:"adb reboot bootloader", desc:"Reboot Into Bootloader"},
+  {cat:"device", code:"adb reboot recovery", desc:"Reboot Into Recovery"},
+
+  // App / package
+  {cat:"apps", code:"adb install <apk>", desc:"Install An APK"},
+  {cat:"apps", code:"adb install -r <apk>", desc:"Reinstall, Keeping Data"},
+  {cat:"apps", code:"adb uninstall <package>", desc:"Remove An App"},
+  {cat:"apps", code:"adb shell pm list packages", desc:"List All Installed Packages"},
+  {cat:"apps", code:"adb shell pm list packages -3", desc:"List Only User-installed Packages"},
+  {cat:"apps", code:"adb shell pm list packages -s", desc:"List Only System Packages"},
+  {cat:"apps", code:"adb shell pm path <package>", desc:"Show APK Path For A Package"},
+  {cat:"apps", code:"adb shell pm clear <package>", desc:"Wipe App Data/cache"},
+  {cat:"apps", code:"adb shell pm grant <package> <permission>", desc:"Grant A Runtime Permission"},
+  {cat:"apps", code:"adb shell pm disable <package>", desc:"Disable An App"},
+  {cat:"apps", code:"adb shell pm enable <package>", desc:"Re-enable A Disabled App"},
+  {cat:"apps", code:"adb shell dumpsys package <package>", desc:"Full Package Info"},
+  {cat:"apps", code:"adb pull /data/app/<package>/base.apk <local>", desc:"Pull An App's APK Off The Device"},
+
+  // Files
+  {cat:"files", code:"adb push <local> <remote>", desc:"Copy File To Device"},
+  {cat:"files", code:"adb pull <remote> <local>", desc:"Copy File From Device"},
+  {cat:"files", code:"adb shell ls -la <path>", desc:"List Files With Details"},
+  {cat:"files", code:"adb shell rm <path>", desc:"Delete A File"},
+  {cat:"files", code:"adb shell mkdir <path>", desc:"Make A Directory"},
+  {cat:"files", code:"adb shell find <path> -name \"<pattern>\"", desc:"Search For Files"},
+  {cat:"files", code:"adb shell df -h", desc:"Disk Usage By Partition"},
+  {cat:"files", code:"adb shell du -sh <path>", desc:"Size Of A Directory"},
+
+  // Performance / swap interval / GPU
+  {cat:"perf", code:"adb shell getprop | grep -i swap", desc:"Find Swap Interval Overrides"},
+  {cat:"perf", code:"adb shell getprop | grep -i vsync", desc:"Find VSync-related Properties"},
+  {cat:"perf", code:"adb shell getprop debug.egl.swapinterval", desc:"Check EGL Swap Interval Prop"},
+  {cat:"perf", code:"adb shell setprop debug.egl.swapinterval <0|1>", desc:"Force Swap Interval"},
+  {cat:"perf", code:"adb shell getprop debug.oculus.forceSwapInterval1", desc:"Oculus Swap Interval Override"},
+  {cat:"perf", code:"adb shell getprop | grep -i oculus", desc:"Dump Oculus-namespaced Props"},
+  {cat:"perf", code:"adb shell dumpsys SurfaceFlinger", desc:"Compositor State, Refresh Rate, VSync Phase"},
+  {cat:"perf", code:"adb shell dumpsys SurfaceFlinger --latency <window>", desc:"Per-frame Latency/present Timestamps"},
+  {cat:"perf", code:"adb shell dumpsys gfxinfo <package>", desc:"Frame Render Times, Jank Count"},
+  {cat:"perf", code:"adb shell dumpsys gfxinfo <package> framestats", desc:"Raw Per-frame Timing Data"},
+  {cat:"perf", code:"adb shell dumpsys thermalservice", desc:"Thermal Throttling State"},
+  {cat:"perf", code:"adb shell dumpsys cpuinfo", desc:"Per-process CPU Usage Snapshot"},
+
+  // Display
+  {cat:"display", code:"adb shell wm size", desc:"Current Display Resolution"},
+  {cat:"display", code:"adb shell wm density", desc:"Current Display DPI"},
+  {cat:"display", code:"adb shell dumpsys display", desc:"Full Display Config, Supported Refresh Rates"},
+  {cat:"display", code:"adb shell settings get system peak_refresh_rate", desc:"Targeted Refresh Rate"},
+  {cat:"display", code:"adb shell screencap -p <path>", desc:"Take A Screenshot"},
+  {cat:"display", code:"adb shell screenrecord <path>", desc:"Record Screen Video"},
+
+  // Logging
+  {cat:"logs", code:"adb logcat", desc:"Stream Full Device Log"},
+  {cat:"logs", code:"adb logcat -c", desc:"Clear The Log Buffer"},
+  {cat:"logs", code:"adb logcat -s <tag>", desc:"Filter By A Specific Log Tag"},
+  {cat:"logs", code:"adb bugreport", desc:"Generate A Full System Diagnostic Dump"},
+
+  // System / shell
+  {cat:"system", code:"adb shell getprop", desc:"List All System Properties"},
+  {cat:"system", code:"adb shell setprop <key> <value>", desc:"Set A System Property"},
+  {cat:"system", code:"adb shell ps", desc:"List Running Processes"},
+  {cat:"system", code:"adb shell top", desc:"Live CPU/mem Usage Per Process"},
+  {cat:"system", code:"adb shell dumpsys meminfo <package>", desc:"Memory Usage For One App"},
+  {cat:"system", code:"adb shell dumpsys battery", desc:"Battery Stats/state"},
+  {cat:"system", code:"adb shell dumpsys activity activities", desc:"Current Activity/task Stack"},
+  {cat:"system", code:"adb shell am start -n <package>/<activity>", desc:"Launch A Specific Activity"},
+  {cat:"system", code:"adb shell am force-stop <package>", desc:"Kill An App"},
+  {cat:"system", code:"adb shell getprop ro.product.model", desc:"Device Model Name"},
+
+  // Networking
+  {cat:"network", code:"adb shell ip addr", desc:"Show Network Interfaces/IPs"},
+  {cat:"network", code:"adb shell dumpsys wifi", desc:"WiFi Connection/state Details"},
+  {cat:"network", code:"adb shell dumpsys connectivity", desc:"Active Network Connections"},
+  {cat:"network", code:"adb reverse tcp:<port> tcp:<port>", desc:"Forward Device Port To Host"},
+  {cat:"network", code:"adb forward tcp:<port> tcp:<port>", desc:"Forward Host Port To Device"},
+
+  // Input
+  {cat:"input", code:"adb shell input tap <x> <y>", desc:"Simulate A Screen Tap"},
+  {cat:"input", code:"adb shell input swipe <x1> <y1> <x2> <y2> <duration>", desc:"Simulate A Swipe Gesture"},
+  {cat:"input", code:"adb shell input keyevent KEYCODE_BACK", desc:"Press Back Button"},
+  {cat:"input", code:"adb shell uiautomator dump", desc:"Dump UI Hierarchy To XML"},
+];
+
+const CATS = ["all", ...Array.from(new Set(COMMANDS.map(c => c.cat)))];
+let activeCat = "all";
+
+// ---------- Render filters ----------
+const filtersEl = document.getElementById("filters");
+CATS.forEach(cat => {
+  const chip = document.createElement("div");
+  chip.className = "filter-chip" + (cat === "all" ? " active" : "");
+  chip.textContent = cat;
+  chip.dataset.cat = cat;
+  chip.addEventListener("click", () => {
+    activeCat = cat;
+    document.querySelectorAll(".filter-chip").forEach(c => c.classList.toggle("active", c.dataset.cat === cat));
+    renderCommands();
+  });
+  filtersEl.appendChild(chip);
+});
+
+// ---------- Render commands ----------
+const cmdGrid = document.getElementById("cmdGrid");
+const emptyState = document.getElementById("emptyState");
+const resultCount = document.getElementById("resultCount");
+const totalCount = document.getElementById("totalCount");
+totalCount.textContent = COMMANDS.length + " Commands Indexed";
+
+function renderCommands(){
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filtered = COMMANDS.filter(c => {
+    const matchesCat = activeCat === "all" || c.cat === activeCat;
+    const matchesSearch = !q || c.code.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q) || c.cat.includes(q);
+    return matchesCat && matchesSearch;
+  });
+
+  resultCount.textContent = "(" + filtered.length + ")";
+  cmdGrid.innerHTML = "";
+  emptyState.style.display = filtered.length ? "none" : "block";
+
+  filtered.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "cmd-card";
+    card.innerHTML = `
+      <div class="cmd-cat">${c.cat}</div>
+      <div class="cmd-code">${c.code}</div>
+      <div class="cmd-desc">${c.desc}</div>
+      <div class="copy-flag">Copied ✓</div>
+    `;
+    card.addEventListener("click", () => {
+      navigator.clipboard.writeText(c.code).catch(()=>{});
+      const flag = card.querySelector(".copy-flag");
+      flag.classList.add("show");
+      setTimeout(() => flag.classList.remove("show"), 1100);
+    });
+    cmdGrid.appendChild(card);
+  });
+}
+document.getElementById("searchInput").addEventListener("input", renderCommands);
+renderCommands();
+
+// ---------- WebUSB connect ----------
+const connectBtn = document.getElementById("connectBtn");
+const statusLed = document.getElementById("statusLed");
+const statusText = document.getElementById("statusText");
+const statusDetail = document.getElementById("statusDetail");
+const hsUsb = document.getElementById("hsUsb");
+const hsDesc = document.getElementById("hsDesc");
+const hsAdb = document.getElementById("hsAdb");
+const hsLine1 = document.getElementById("hsLine1");
+const hsLine2 = document.getElementById("hsLine2");
+
+function resetHandshake(){
+  [hsUsb, hsDesc, hsAdb].forEach(n => n.classList.remove("active"));
+  [hsLine1, hsLine2].forEach(l => l.classList.remove("run"));
+}
+
+connectBtn.addEventListener("click", async () => {
+  if (!("usb" in navigator)) {
+    statusLed.className = "status-led err";
+    statusText.textContent = "WebUSB Not Available";
+    statusDetail.textContent = "This Browser Doesn't Support WebUSB. Try Chrome Or Edge On Desktop — WebUSB Isn't Available On iOS/Safari, And Support On Mobile Chrome Is Limited.";
+    return;
+  }
+
+  resetHandshake();
+  connectBtn.disabled = true;
+  statusText.textContent = "Waiting For Device Selection...";
+  statusDetail.textContent = "Choose Your Headset In The Browser's Picker. It Must Be In USB Debugging Mode.";
+  hsLine1.classList.add("run");
+
+  try {
+    const device = await navigator.usb.requestDevice({ filters: [] });
+    hsUsb.classList.add("active");
+    hsLine1.classList.remove("run");
+    hsLine2.classList.add("run");
+    statusText.textContent = "Device Selected — Reading Descriptors...";
+
+    await device.open();
+    hsDesc.classList.add("active");
+    hsLine2.classList.remove("run");
+
+    // Look for the ADB interface (class 0xFF, subclass 0x42, protocol 0x01)
+    let adbInterface = null;
+    for (const cfg of device.configurations) {
+      for (const iface of cfg.interfaces) {
+        for (const alt of iface.alternates) {
+          if (alt.interfaceClass === 0xFF && alt.interfaceSubclass === 0x42 && alt.interfaceProtocol === 0x01) {
+            adbInterface = iface;
+          }
+        }
+      }
+    }
+
+    const name = device.productName || "Unknown device";
+    const manu = device.manufacturerName || "Unknown manufacturer";
+    const serial = device.serialNumber || "n/a";
+    const vid = device.vendorId ? "0x" + device.vendorId.toString(16).padStart(4,"0") : "n/a";
+    const pid = device.productId ? "0x" + device.productId.toString(16).padStart(4,"0") : "n/a";
+
+    if (adbInterface) {
+      hsAdb.classList.add("active");
+      statusLed.className = "status-led on";
+      statusText.textContent = "Connected — ADB Interface Detected";
+    } else {
+      statusLed.className = "status-led err";
+      statusText.textContent = "Connected — No ADB Interface Found";
+    }
+
+    statusDetail.textContent =
+`Device:  ${name}
+Maker:   ${manu}
+Serial:  ${serial}
+Vid/Pid: ${vid} / ${pid}
+Adb Iface: ${adbInterface ? "Present (Class 0xFF/0x42/0x01)" : "Not Found On This Configuration"}
+
+Note: If Your Desktop Adb Server Already Has This Device Claimed, The Browser May Not Be Able To Open It Exclusively — That's Expected And Not A Bug Here.`;
+
+    await device.close();
+  } catch (err) {
+    resetHandshake();
+    statusLed.className = "status-led err";
+    statusText.textContent = "Connection Cancelled Or Failed";
+    statusDetail.textContent = String(err.message || err);
+  } finally {
+    connectBtn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>
