@@ -306,6 +306,10 @@ const COMMANDS = [
   {cat:"perf", code:"adb shell dumpsys thermalservice", desc:"Thermal Throttling State"},
   {cat:"perf", code:"adb shell dumpsys cpuinfo", desc:"Per-process CPU Usage Snapshot"},
 
+  {cat:"perf", code:"adb shell setprop debug.oculus.disableAsw 1", desc:"Disable Asynchronous Spacewarp"},
+  {cat:"perf", code:"adb shell setprop debug.oculus.lateLatching 0", desc:"Disable Late Latching"},
+  {cat:"perf", code:"adb shell setprop debug.oculus.motionSmoothing 0", desc:"Disable Motion Smoothing"},
+
   // Display
   {cat:"display", code:"adb shell wm size", desc:"Current Display Resolution"},
   {cat:"display", code:"adb shell wm density", desc:"Current Display DPI"},
@@ -320,6 +324,19 @@ const COMMANDS = [
   {cat:"logs", code:"adb logcat -s <tag>", desc:"Filter By A Specific Log Tag"},
   {cat:"logs", code:"adb bugreport", desc:"Generate A Full System Diagnostic Dump"},
 
+  // Firmware / version
+  {cat:"firmware", code:"adb shell getprop ro.build.version.incremental", desc:"Firmware/build Number"},
+  {cat:"firmware", code:"adb shell getprop ro.build.fingerprint", desc:"Full Build Fingerprint (most Reliable Firmware ID)"},
+  {cat:"firmware", code:"adb shell getprop ro.build.version.release", desc:"Android OS Version"},
+  {cat:"firmware", code:"adb shell getprop ro.build.version.sdk", desc:"Android SDK/API Level"},
+  {cat:"firmware", code:"adb shell getprop ro.build.display.id", desc:"Human-readable Build ID"},
+  {cat:"firmware", code:"adb shell getprop ro.build.date", desc:"Build Date Of Current Firmware"},
+  {cat:"firmware", code:"adb shell getprop gsm.version.baseband", desc:"Baseband/radio Firmware Version"},
+  {cat:"firmware", code:"adb shell getprop ro.bootloader", desc:"Bootloader Version"},
+  {cat:"firmware", code:"adb shell getprop | findstr oculus", desc:"Oculus/Meta-specific Build Props (Windows)"},
+  {cat:"firmware", code:"adb shell getprop | grep oculus", desc:"Oculus/Meta-specific Build Props (Mac/Linux)"},
+  {cat:"firmware", code:"adb shell getprop ro.product.model", desc:"Device Model Name"},
+
   // System / shell
   {cat:"system", code:"adb shell getprop", desc:"List All System Properties"},
   {cat:"system", code:"adb shell setprop <key> <value>", desc:"Set A System Property"},
@@ -330,7 +347,6 @@ const COMMANDS = [
   {cat:"system", code:"adb shell dumpsys activity activities", desc:"Current Activity/task Stack"},
   {cat:"system", code:"adb shell am start -n <package>/<activity>", desc:"Launch A Specific Activity"},
   {cat:"system", code:"adb shell am force-stop <package>", desc:"Kill An App"},
-  {cat:"system", code:"adb shell getprop ro.product.model", desc:"Device Model Name"},
 
   // Networking
   {cat:"network", code:"adb shell ip addr", desc:"Show Network Interfaces/IPs"},
@@ -494,4 +510,5 @@ Note: If Your Desktop Adb Server Already Has This Device Claimed, The Browser Ma
 </script>
 
 </body>
+</html>
 </html>
