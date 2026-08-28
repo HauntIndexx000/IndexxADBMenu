@@ -195,6 +195,51 @@
     .connect-panel{grid-template-columns:1fr;}
     .connect-actions{width:100%;}
   }
+
+  /* Adjustable properties */
+  .sliders-section{ padding:0 0 44px; }
+  .sliders-head{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:8px; }
+  .sliders-head h2{ font-family:var(--mono); font-size:22px; letter-spacing:-0.01em; }
+  .sliders-note{
+    font-size:12.5px; color:var(--muted); line-height:1.6; margin-bottom:22px;
+    border-left:2px solid var(--accent-dim); padding-left:14px; max-width:760px;
+  }
+  .slider-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:14px; }
+  .slider-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px;
+  }
+  .slider-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  .slider-label{ font-family:var(--sans); font-size:14px; font-weight:600; color:var(--text); }
+  .slider-value{
+    font-family:var(--mono); font-size:13px; color:var(--accent); background:var(--panel-2);
+    padding:3px 10px; border-radius:6px; min-width:44px; text-align:center;
+  }
+  .slider-desc{ font-size:12px; color:var(--muted); line-height:1.5; margin:6px 0 14px; }
+  .slider-track-row{ display:flex; align-items:center; gap:10px; }
+  input[type="range"].adb-slider{
+    flex:1; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px;
+    background:var(--border); outline:none;
+  }
+  input[type="range"].adb-slider::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:16px; height:16px; border-radius:50%;
+    background:var(--accent); cursor:pointer; border:2px solid #0A0C0F;
+    box-shadow:0 0 0 1px var(--accent);
+  }
+  input[type="range"].adb-slider::-moz-range-thumb{
+    width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer;
+    border:2px solid #0A0C0F;
+  }
+  input[type="range"].adb-slider:disabled{ opacity:.35; }
+  .slider-bottom{ display:flex; align-items:center; justify-content:space-between; margin-top:12px; }
+  .slider-prop{ font-family:var(--mono); font-size:10.5px; color:var(--muted); word-break:break-all; }
+  .slider-actions{ display:flex; gap:6px; flex-shrink:0; }
+  .slider-actions button{
+    font-family:var(--mono); font-size:11px; padding:6px 10px; border-radius:6px; cursor:pointer;
+    border:1px solid var(--border); background:var(--panel-2); color:var(--muted);
+  }
+  .slider-actions button:hover{ color:var(--text); border-color:var(--accent-dim); }
+  .slider-actions button:disabled{ opacity:.35; cursor:default; }
+  .slider-actions button.reset-btn:hover{ border-color:var(--ok); color:var(--ok); }
 </style>
 </head>
 <body>
@@ -216,6 +261,9 @@
         <div class="caveat">
           <strong>How This Differs From The Static Version:</strong> A Browser Tab Can't Open A Raw Socket To <code>adb</code> Or Do The USB ADB Auth Handshake On Its Own. This Page Talks Over <code>ws://127.0.0.1:8765</code> To <code>adb_bridge_server.py</code> Running On Your Machine — That Process Holds The Actual Persistent Shell And Executes Everything. Nothing Executes If The Bridge Isn't Running.
         </div>
+        <div class="caveat" style="border-left-color:var(--ok-dim);">
+          <strong>Host Vs Device Commands:</strong> Cards Like <code>adb reboot</code> Or <code>adb tcpip 5555</code> Run On Your Mac Against The Device (No Shell Needed). Cards Without An <code>adb</code> Prefix (<code>getprop</code>, <code>pm list packages</code>, Etc.) Run Inside The Attached Device Shell. The Bridge Now Routes Each Automatically Based On Whether It Starts With <code>adb</code>.
+        </div>
       </div>
       <div class="connect-actions">
         <button class="primary" id="connectBtn">Connect Bridge</button>
@@ -235,6 +283,17 @@
       <input type="text" id="freeformInput" placeholder="Freeform Shell Command — Press Enter To Send" disabled>
       <button id="freeformBtn" disabled>Send</button>
     </div>
+  </div>
+
+  <div class="dash sliders-section">
+    <div class="sliders-head">
+      <h2>Adjustable Properties</h2>
+      <span class="tag" id="slidersTag">no shell attached</span>
+    </div>
+    <div class="sliders-note">
+      Each Slider Runs <code>setprop &lt;key&gt; &lt;value&gt;</code> Inside The Attached Device Shell When Released. Ranges And Prop Names Below Are Community-documented Oculus/Meta Debug Props, Not From Official Meta Docs — Confirmed Working On Quest 2/3 In Common Use, But Not Guaranteed Across Every Firmware Version. Reset Puts It Back To The Stock Default Shown. Refresh Rate Only Accepts The Steps Your Headset Actually Supports; Unsupported Values Are Silently Ignored By The Compositor.
+    </div>
+    <div class="slider-grid" id="sliderGrid"></div>
   </div>
 
   <div class="dash">
@@ -362,6 +421,104 @@ let runButtons = [];
 document.getElementById("searchInput").addEventListener("input", renderCommands);
 renderCommands();
 
+// ---------- Adjustable properties (sliders) ----------
+// Prop names/ranges below are community-documented Oculus/Meta debug props
+// (commonly referenced in Quest performance-tuning writeups), NOT pulled
+// from an official Meta spec sheet -- Gorilla Tag/Quest internals aren't
+// publicly documented source. Confirmed as commonly-working on Quest 2/3;
+// treat exact defaults as best-known-typical, not guaranteed per firmware.
+const SLIDERS = [
+  {
+    key: "debug.oculus.cpuLevel", label: "CPU Level",
+    min: 0, max: 4, step: 1, default: 2,
+    desc: "Oculus CPU perf level. Higher = more headroom for game logic/physics, more heat & battery draw."
+  },
+  {
+    key: "debug.oculus.gpuLevel", label: "GPU Level",
+    min: 0, max: 4, step: 1, default: 2,
+    desc: "Oculus GPU perf level. Higher = more rendering headroom, more heat & battery draw."
+  },
+  {
+    key: "debug.oculus.foveation.level", label: "Foveation Level",
+    min: 0, max: 4, step: 1, default: 1,
+    desc: "Fixed Foveated Rendering strength — reduces shading cost toward the lens periphery. 0 = off."
+  },
+  {
+    key: "debug.oculus.swapInterval", label: "Swap Interval",
+    min: 0, max: 20, step: 1, default: 1,
+    desc: "Frame-swap divisor, not a vsync on/off toggle — higher values skip more compositor swaps per frame (effectively caps FPS lower). Corrected from debug.egl.swapinterval, which is the generic EGL prop rather than the Oculus-specific one."
+  },
+  {
+    key: "debug.oculus.refreshRate", label: "Refresh Rate",
+    min: 0, max: 3, step: 1, default: 2,
+    valuesMap: [60, 72, 80, 90], unit: "Hz",
+    desc: "Maps to discrete supported rates on Quest 2 (60/72/80/90Hz). Unsupported steps are ignored by the compositor rather than erroring."
+  },
+  {
+    key: "debug.oculus.textureWidth", label: "Render Target Width",
+    min: 1024, max: 4096, step: 32, default: 3616, unit: "px",
+    desc: "Eye-buffer render width per eye. Higher = sharper image, heavier GPU load. Actual in-app effect depends on whether the running app reads this prop."
+  },
+];
+
+const sliderGrid = document.getElementById("sliderGrid");
+const slidersTag = document.getElementById("slidersTag");
+let sliderControls = []; // {input, valueEl} pairs, toggled alongside runButtons
+
+function displayValue(def, rawValue){
+  const v = def.valuesMap ? def.valuesMap[rawValue] : rawValue;
+  return def.unit ? `${v}${def.unit}` : `${v}`;
+}
+function actualValue(def, rawValue){
+  return def.valuesMap ? def.valuesMap[rawValue] : rawValue;
+}
+function indexForDefault(def){
+  return def.valuesMap ? def.valuesMap.indexOf(def.default) : def.default;
+}
+
+SLIDERS.forEach(def => {
+  const card = document.createElement("div");
+  card.className = "slider-card";
+  const startIndex = indexForDefault(def);
+  card.innerHTML = `
+    <div class="slider-top">
+      <div class="slider-label">${def.label}</div>
+      <div class="slider-value">${displayValue(def, startIndex)}</div>
+    </div>
+    <div class="slider-desc">${def.desc}</div>
+    <div class="slider-track-row">
+      <input type="range" class="adb-slider" min="${def.min}" max="${def.max}" step="${def.step}" value="${startIndex}" disabled>
+    </div>
+    <div class="slider-bottom">
+      <div class="slider-prop">${def.key}</div>
+      <div class="slider-actions">
+        <button class="reset-btn" disabled>Reset</button>
+      </div>
+    </div>
+  `;
+
+  const input = card.querySelector(".adb-slider");
+  const valueEl = card.querySelector(".slider-value");
+  const resetBtn = card.querySelector(".reset-btn");
+
+  input.addEventListener("input", () => {
+    valueEl.textContent = displayValue(def, input.value);
+  });
+  input.addEventListener("change", () => {
+    const v = actualValue(def, input.value);
+    sendCommand(`setprop ${def.key} ${v}`);
+  });
+  resetBtn.addEventListener("click", () => {
+    input.value = indexForDefault(def);
+    valueEl.textContent = displayValue(def, input.value);
+    sendCommand(`setprop ${def.key} ${def.default}`);
+  });
+
+  sliderControls.push({ input, resetBtn });
+  sliderGrid.appendChild(card);
+});
+
+
 // ---------- Bridge WebSocket ----------
 const connectBtn = document.getElementById("connectBtn");
 const attachBtn = document.getElementById("attachBtn");
@@ -390,7 +547,12 @@ function setShellState(attached){
   freeformInput.disabled = !attached;
   freeformBtn.disabled = !attached;
   runButtons.forEach(b => b.disabled = !attached);
+  sliderControls.forEach(({input, resetBtn}) => {
+    input.disabled = !attached;
+    resetBtn.disabled = !attached;
+  });
   shellTag.textContent = attached ? "shell attached" : "no shell attached";
+  slidersTag.textContent = attached ? "shell attached" : "no shell attached";
 }
 
 function connectBridge(){
