@@ -3,24 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IndexxADBMenu — Live Console</title>
+<title>IndexxADBMenu — Test Build</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0A0C0F;
-    --panel:#12161B;
-    --panel-2:#171C22;
-    --border:#242A31;
-    --text:#DCE2E8;
-    --muted:#7C8790;
-    --accent:#FF7A1A;
-    --accent-dim:#8A4416;
-    --ok:#4FD6C4;
-    --ok-dim:#1F4640;
-    --err:#FF5C5C;
-    --mono:'IBM Plex Mono', ui-monospace, monospace;
-    --sans:'IBM Plex Sans', sans-serif;
+    --bg:#0A0C0F; --panel:#12161B; --panel-2:#171C22; --border:#242A31;
+    --text:#DCE2E8; --muted:#7C8790; --accent:#FF7A1A; --accent-dim:#8A4416;
+    --ok:#4FD6C4; --ok-dim:#1F4640; --err:#FF5C5C;
+    --mono:'IBM Plex Mono', ui-monospace, monospace; --sans:'IBM Plex Sans', sans-serif;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html,body{background:var(--bg); color:var(--text); font-family:var(--sans); height:100%;}
@@ -28,53 +19,66 @@
     background-image:
       linear-gradient(var(--border) 1px, transparent 1px),
       linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 42px 42px;
-    background-position: -1px -1px;
-    background-color: var(--bg);
-    background-blend-mode: normal;
+    background-size:42px 42px; background-position:-1px -1px; background-color:var(--bg);
     min-height:100vh;
   }
   body::before{
-    content:"";
-    position:fixed; inset:0;
-    background: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(255,122,26,0.10), transparent 60%);
+    content:""; position:fixed; inset:0;
+    background:radial-gradient(ellipse 900px 500px at 50% -10%, rgba(255,122,26,0.10), transparent 60%);
     pointer-events:none;
   }
-  a{color:inherit;}
-  ::selection{background:var(--accent); color:#0A0C0F;}
-
+  a{color:inherit;} ::selection{background:var(--accent); color:#0A0C0F;}
   .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
 
-  header{ padding:56px 0 40px; border-bottom:1px solid var(--border); }
+  header{ padding:56px 0 28px; border-bottom:1px solid var(--border); }
   .eyebrow{
     font-family:var(--mono); font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
     color:var(--accent); margin-bottom:14px; display:flex; align-items:center; gap:10px;
   }
   .eyebrow .dot{width:6px; height:6px; background:var(--accent); border-radius:50%; box-shadow:0 0 8px var(--accent);}
-  h1{
-    font-family:var(--mono); font-weight:700; font-size:clamp(32px,5vw,52px);
-    letter-spacing:-0.02em; line-height:1.05; margin-bottom:16px;
-  }
+  h1{ font-family:var(--mono); font-weight:700; font-size:clamp(32px,5vw,52px); letter-spacing:-0.02em; line-height:1.05; margin-bottom:16px; }
   h1 span{color:var(--accent);}
-  .sub{color:var(--muted); font-size:16px; max-width:620px; line-height:1.6;}
-
-  /* Connect panel */
-  .connect-panel{
-    margin-top:40px; background:var(--panel); border:1px solid var(--border); border-radius:10px;
-    padding:28px; display:grid; grid-template-columns: 1fr auto; gap:24px; align-items:start;
+  .sub{color:var(--muted); font-size:16px; max-width:620px; line-height:1.6; margin-bottom:10px;}
+  .testbuild-tag{
+    display:inline-block; font-family:var(--mono); font-size:11px; color:var(--accent);
+    border:1px solid var(--accent-dim); padding:3px 10px; border-radius:20px; margin-bottom:24px;
   }
+
+  /* Tabs */
+  .tabs-bar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .tab-btn{
+    font-family:var(--mono); font-size:12.5px; padding:9px 16px; border-radius:8px 8px 0 0;
+    border:1px solid var(--border); border-bottom:none; background:var(--panel-2); color:var(--muted);
+    cursor:pointer; display:flex; align-items:center; gap:8px;
+  }
+  .tab-btn .tab-led{ width:7px; height:7px; border-radius:50%; background:var(--muted); }
+  .tab-btn .tab-led.on{ background:var(--ok); box-shadow:0 0 6px var(--ok); }
+  .tab-btn.active{ background:var(--panel); color:var(--text); border-color:var(--accent-dim); }
+  .tab-btn .tab-close{ color:var(--muted); font-size:14px; padding:0 2px; }
+  .tab-btn .tab-close:hover{ color:var(--err); }
+  .new-tab-btn{
+    font-family:var(--mono); font-size:16px; padding:8px 14px; border-radius:8px 8px 0 0;
+    border:1px dashed var(--border); background:transparent; color:var(--muted); cursor:pointer;
+  }
+  .new-tab-btn:hover{ color:var(--accent); border-color:var(--accent-dim); }
+
+  .session-panel{
+    background:var(--panel); border:1px solid var(--border); border-radius:0 10px 10px 10px;
+    padding:28px; margin-bottom:44px;
+  }
+  .session-panel.hidden{ display:none; }
+
+  .connect-row{ display:grid; grid-template-columns:1fr auto; gap:24px; align-items:start; margin-bottom:22px; }
   .status-row{display:flex; align-items:center; gap:14px; margin-bottom:10px;}
   .status-led{ width:10px; height:10px; border-radius:50%; background:var(--muted); transition:background .3s, box-shadow .3s; }
   .status-led.on{background:var(--ok); box-shadow:0 0 10px var(--ok);}
   .status-led.err{background:var(--err); box-shadow:0 0 10px var(--err);}
   .status-text{font-family:var(--mono); font-size:14px; color:var(--text);}
   .status-detail{font-family:var(--mono); font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.7; white-space:pre-wrap;}
-
   .connect-actions{ display:flex; flex-direction:column; gap:10px; align-items:stretch; min-width:220px; }
   button.primary{
-    font-family:var(--mono); font-weight:600; font-size:14px;
-    background:var(--accent); color:#0A0C0F; border:none;
-    padding:13px 22px; border-radius:8px; cursor:pointer; letter-spacing:0.02em;
+    font-family:var(--mono); font-weight:600; font-size:13.5px; background:var(--accent); color:#0A0C0F;
+    border:none; padding:12px 20px; border-radius:8px; cursor:pointer; letter-spacing:0.02em;
     transition:transform .15s, box-shadow .15s; white-space:nowrap;
   }
   button.primary:hover{transform:translateY(-1px); box-shadow:0 6px 20px rgba(255,122,26,0.25);}
@@ -83,283 +87,738 @@
     font-family:var(--mono); font-size:13px; background:var(--panel-2); color:var(--text);
     border:1px solid var(--border); border-radius:8px; padding:10px 12px;
   }
+  .caveat{ margin-top:14px; font-size:12.5px; color:var(--muted); line-height:1.6; border-left:2px solid var(--accent-dim); padding-left:14px; }
+  .caveat strong{color:var(--text);} .caveat code{font-family:var(--mono); background:var(--panel-2); padding:1px 6px; border-radius:4px; color:var(--ok);}
 
-  .caveat{
-    margin-top:18px; font-size:13px; color:var(--muted); line-height:1.6;
-    border-left:2px solid var(--accent-dim); padding-left:14px;
-  }
-  .caveat strong{color:var(--text);}
-  .caveat code{ font-family:var(--mono); background:var(--panel-2); padding:1px 6px; border-radius:4px; color:var(--ok); }
+  .section-h{ font-family:var(--mono); font-size:15px; margin:26px 0 12px; display:flex; align-items:center; justify-content:space-between; }
+  .section-h .tag{ font-family:var(--mono); font-size:11px; color:var(--muted); border:1px solid var(--border); padding:3px 9px; border-radius:20px; }
 
-  /* Console */
-  .console-section{ padding:44px 0 0; }
-  .console-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-  .console-head h2{ font-family:var(--mono); font-size:16px; letter-spacing:-0.01em; }
-  .console-head .tag{
-    font-family:var(--mono); font-size:11px; color:var(--muted); border:1px solid var(--border);
-    padding:4px 10px; border-radius:20px;
-  }
-  #console{
-    background:#05070A; border:1px solid var(--border); border-radius:10px;
-    height:280px; overflow-y:auto; padding:16px; font-family:var(--mono); font-size:12.5px;
-    line-height:1.7; white-space:pre-wrap; word-break:break-all;
-  }
-  #console .l-cmd{ color:var(--accent); }
-  #console .l-sys{ color:var(--ok); }
-  #console .l-err{ color:var(--err); }
-  #console .l-out{ color:var(--text); }
-
+  #console-tpl{ background:#05070A; border:1px solid var(--border); border-radius:10px; height:240px; overflow-y:auto; padding:16px; font-family:var(--mono); font-size:12.5px; line-height:1.7; white-space:pre-wrap; word-break:break-all; }
+  .l-cmd{ color:var(--accent); } .l-sys{ color:var(--ok); } .l-err{ color:var(--err); } .l-out{ color:var(--text); }
   .console-input-row{ display:flex; gap:10px; margin-top:12px; }
-  .console-input-row input{
-    flex:1; background:var(--panel); border:1px solid var(--border); color:var(--text);
-    font-family:var(--mono); font-size:13.5px; padding:12px 14px; border-radius:8px; outline:none;
-  }
-  .console-input-row input:focus{ border-color:var(--accent); }
-  .console-input-row input:disabled{ opacity:.4; }
-  .console-input-row button{
-    font-family:var(--mono); font-weight:600; font-size:13px; background:var(--panel-2);
-    color:var(--text); border:1px solid var(--border); border-radius:8px; padding:0 20px; cursor:pointer;
-  }
-  .console-input-row button:hover{ border-color:var(--accent); }
-  .console-input-row button:disabled{ opacity:.4; cursor:default; }
+  .console-input-row input{ flex:1; background:var(--panel-2); border:1px solid var(--border); color:var(--text); font-family:var(--mono); font-size:13.5px; padding:12px 14px; border-radius:8px; outline:none; }
+  .console-input-row input:focus{ border-color:var(--accent); } .console-input-row input:disabled{ opacity:.4; }
+  .console-input-row button{ font-family:var(--mono); font-weight:600; font-size:13px; background:var(--panel-2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:0 20px; cursor:pointer; }
+  .console-input-row button:hover{ border-color:var(--accent); } .console-input-row button:disabled{ opacity:.4; cursor:default; }
 
-  /* Command dashboard */
-  .dash{padding:44px 0 80px;}
-  .dash-head{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:28px;}
-  .dash-head h2{font-family:var(--mono); font-size:22px; letter-spacing:-0.01em;}
-  .dash-head h2 .count{color:var(--muted); font-weight:400; font-size:14px;}
+  .slider-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px; }
+  .slider-card{ background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .slider-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  .slider-label{ font-size:13.5px; font-weight:600; color:var(--text); }
+  .slider-value{ font-family:var(--mono); font-size:12.5px; color:var(--accent); background:var(--panel); padding:3px 9px; border-radius:6px; min-width:44px; text-align:center; }
+  .slider-desc{ font-size:11.5px; color:var(--muted); line-height:1.5; margin:5px 0 12px; }
+  input[type="range"].adb-slider{ flex:1; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; background:var(--border); outline:none; width:100%; }
+  input[type="range"].adb-slider::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:15px; height:15px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid #0A0C0F; }
+  input[type="range"].adb-slider::-moz-range-thumb{ width:15px; height:15px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid #0A0C0F; }
+  input[type="range"].adb-slider:disabled{ opacity:.35; }
+  .slider-bottom{ display:flex; align-items:center; justify-content:space-between; margin-top:10px; }
+  .slider-prop{ font-family:var(--mono); font-size:10px; color:var(--muted); word-break:break-all; }
+  .slider-actions button{ font-family:var(--mono); font-size:10.5px; padding:5px 9px; border-radius:6px; cursor:pointer; border:1px solid var(--border); background:var(--panel); color:var(--muted); }
+  .slider-actions button:hover{ color:var(--text); border-color:var(--accent-dim); }
+  .slider-actions button:disabled{ opacity:.35; cursor:default; }
 
-  .search-box{ position:relative; width:320px; max-width:100%; }
-  .search-box input{
-    width:100%; background:var(--panel); border:1px solid var(--border); color:var(--text);
-    font-family:var(--mono); font-size:14px; padding:12px 14px 12px 38px; border-radius:8px; outline:none;
-    transition:border-color .15s;
-  }
+  .tools-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; }
+  .tool-card{ background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .tool-card h4{ font-family:var(--mono); font-size:12.5px; margin-bottom:10px; letter-spacing:0.02em; }
+  .tool-card p{ font-size:11.5px; color:var(--muted); line-height:1.5; margin-bottom:10px; }
+  .tool-card button{ font-family:var(--mono); font-size:12px; padding:9px 14px; border-radius:7px; cursor:pointer; border:1px solid var(--ok-dim); background:transparent; color:var(--ok); width:100%; }
+  .tool-card button:hover{ background:var(--ok-dim); }
+  .tool-card button:disabled{ opacity:.35; cursor:default; background:transparent; }
+  .tool-card input[type=text]{ width:100%; background:var(--panel); border:1px solid var(--border); color:var(--text); font-family:var(--mono); font-size:12px; padding:8px 10px; border-radius:6px; margin-bottom:8px; }
+  .screenshot-box{ margin-top:10px; border-radius:8px; overflow:hidden; border:1px solid var(--border); display:none; }
+  .screenshot-box img{ width:100%; display:block; }
+  .wireless-result{ font-family:var(--mono); font-size:11.5px; color:var(--ok); margin-top:8px; word-break:break-all; }
+  .fps-readout{ font-family:var(--mono); font-size:12px; margin-top:8px; color:var(--text); }
+  .sparkline{ width:100%; height:36px; margin-top:6px; }
+
+  .history-list{ display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto; }
+  .history-item{ display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11.5px; background:var(--panel-2); border:1px solid var(--border); border-radius:6px; padding:7px 10px; }
+  .history-item .h-code{ flex:1; color:var(--text); cursor:pointer; word-break:break-all; }
+  .history-item .h-code:hover{ color:var(--accent); }
+  .history-item button{ background:none; border:none; color:var(--muted); cursor:pointer; font-size:13px; }
+  .history-item button:hover{ color:var(--accent); }
+  .history-item.fav .h-star{ color:#FFD24A; }
+  .history-empty{ font-family:var(--mono); font-size:11.5px; color:var(--muted); padding:8px 0; }
+
+  /* Command dashboard (shared, global) */
+  .dash{padding:0 0 80px;}
+  .dash-head{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:22px;}
+  .dash-head h2{font-family:var(--mono); font-size:20px; letter-spacing:-0.01em;}
+  .dash-head h2 .count{color:var(--muted); font-weight:400; font-size:13px;}
+  .search-box{ position:relative; width:300px; max-width:100%; }
+  .search-box input{ width:100%; background:var(--panel); border:1px solid var(--border); color:var(--text); font-family:var(--mono); font-size:13.5px; padding:11px 14px 11px 36px; border-radius:8px; outline:none; }
   .search-box input:focus{border-color:var(--accent);}
-  .search-box::before{
-    content:"›_"; position:absolute; left:14px; top:50%; transform:translateY(-50%);
-    color:var(--accent); font-family:var(--mono); font-size:14px; pointer-events:none;
-  }
-
-  .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px;}
-  .filter-chip{
-    font-family:var(--mono); font-size:12px; padding:7px 13px; border-radius:20px;
-    border:1px solid var(--border); background:var(--panel); color:var(--muted);
-    cursor:pointer; transition:all .15s; user-select:none; text-transform:capitalize;
-  }
+  .search-box::before{ content:"›_"; position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--accent); font-family:var(--mono); font-size:13px; pointer-events:none; }
+  .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px;}
+  .filter-chip{ font-family:var(--mono); font-size:11.5px; padding:6px 12px; border-radius:20px; border:1px solid var(--border); background:var(--panel); color:var(--muted); cursor:pointer; text-transform:capitalize; }
   .filter-chip:hover{border-color:var(--accent-dim); color:var(--text);}
   .filter-chip.active{background:var(--accent); border-color:var(--accent); color:#0A0C0F; font-weight:600;}
-
-  .cmd-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px; }
-  .cmd-card{
-    background:var(--panel); border:1px solid var(--border); border-radius:10px;
-    padding:18px; transition:border-color .15s, transform .15s; position:relative;
-  }
-  .cmd-card:hover{border-color:var(--accent-dim); transform:translateY(-2px);}
-  .cmd-cat{
-    font-family:var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
-    color:var(--accent); margin-bottom:10px;
-  }
-  .cmd-code{
-    font-family:var(--mono); font-size:13.5px; color:var(--text); line-height:1.5;
-    word-break:break-word; margin-bottom:10px; cursor:pointer;
-  }
-  .cmd-desc{font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:14px;}
+  .cmd-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px; }
+  .cmd-card{ background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px; position:relative; }
+  .cmd-cat{ font-family:var(--mono); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+  .cmd-code{ font-family:var(--mono); font-size:13px; color:var(--text); line-height:1.5; word-break:break-word; margin-bottom:8px; cursor:pointer; }
+  .cmd-desc{font-size:12px; color:var(--muted); line-height:1.5; margin-bottom:12px;}
   .cmd-actions{ display:flex; gap:8px; }
-  .cmd-actions button{
-    font-family:var(--mono); font-size:11.5px; padding:7px 12px; border-radius:6px; cursor:pointer;
-    border:1px solid var(--border); background:var(--panel-2); color:var(--muted);
-  }
+  .cmd-actions button{ font-family:var(--mono); font-size:11px; padding:6px 11px; border-radius:6px; cursor:pointer; border:1px solid var(--border); background:var(--panel-2); color:var(--muted); }
   .cmd-actions button:hover{ color:var(--text); border-color:var(--accent-dim); }
   .cmd-actions button.run-btn{ color:var(--ok); border-color:var(--ok-dim); }
   .cmd-actions button.run-btn:hover{ border-color:var(--ok); }
   .cmd-actions button:disabled{ opacity:.35; cursor:default; }
-  .copy-flag{
-    position:absolute; top:16px; right:16px; font-family:var(--mono); font-size:11px;
-    color:var(--ok); opacity:0; transition:opacity .2s; pointer-events:none;
-  }
+  .copy-flag{ position:absolute; top:14px; right:14px; font-family:var(--mono); font-size:10.5px; color:var(--ok); opacity:0; transition:opacity .2s; pointer-events:none; }
   .copy-flag.show{opacity:1;}
+  .empty-state{ text-align:center; padding:50px 20px; color:var(--muted); font-family:var(--mono); font-size:13px; border:1px dashed var(--border); border-radius:10px; }
+  footer{ border-top:1px solid var(--border); padding:26px 0 50px; font-family:var(--mono); font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
 
-  .empty-state{
-    text-align:center; padding:60px 20px; color:var(--muted); font-family:var(--mono); font-size:14px;
-    border:1px dashed var(--border); border-radius:10px;
-  }
-
-  footer{
-    border-top:1px solid var(--border); padding:28px 0 50px;
-    font-family:var(--mono); font-size:12px; color:var(--muted);
-    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
-  }
-
-  @media (max-width:640px){
-    .connect-panel{grid-template-columns:1fr;}
-    .connect-actions{width:100%;}
-  }
-
-  /* Adjustable properties */
-  .sliders-section{ padding:0 0 44px; }
-  .sliders-head{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:8px; }
-  .sliders-head h2{ font-family:var(--mono); font-size:22px; letter-spacing:-0.01em; }
-  .sliders-note{
-    font-size:12.5px; color:var(--muted); line-height:1.6; margin-bottom:22px;
-    border-left:2px solid var(--accent-dim); padding-left:14px; max-width:760px;
-  }
-  .slider-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:14px; }
-  .slider-card{
-    background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px;
-  }
-  .slider-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
-  .slider-label{ font-family:var(--sans); font-size:14px; font-weight:600; color:var(--text); }
-  .slider-value{
-    font-family:var(--mono); font-size:13px; color:var(--accent); background:var(--panel-2);
-    padding:3px 10px; border-radius:6px; min-width:44px; text-align:center;
-  }
-  .slider-desc{ font-size:12px; color:var(--muted); line-height:1.5; margin:6px 0 14px; }
-  .slider-track-row{ display:flex; align-items:center; gap:10px; }
-  input[type="range"].adb-slider{
-    flex:1; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px;
-    background:var(--border); outline:none;
-  }
-  input[type="range"].adb-slider::-webkit-slider-thumb{
-    -webkit-appearance:none; appearance:none; width:16px; height:16px; border-radius:50%;
-    background:var(--accent); cursor:pointer; border:2px solid #0A0C0F;
-    box-shadow:0 0 0 1px var(--accent);
-  }
-  input[type="range"].adb-slider::-moz-range-thumb{
-    width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer;
-    border:2px solid #0A0C0F;
-  }
-  input[type="range"].adb-slider:disabled{ opacity:.35; }
-  .slider-bottom{ display:flex; align-items:center; justify-content:space-between; margin-top:12px; }
-  .slider-prop{ font-family:var(--mono); font-size:10.5px; color:var(--muted); word-break:break-all; }
-  .slider-actions{ display:flex; gap:6px; flex-shrink:0; }
-  .slider-actions button{
-    font-family:var(--mono); font-size:11px; padding:6px 10px; border-radius:6px; cursor:pointer;
-    border:1px solid var(--border); background:var(--panel-2); color:var(--muted);
-  }
-  .slider-actions button:hover{ color:var(--text); border-color:var(--accent-dim); }
-  .slider-actions button:disabled{ opacity:.35; cursor:default; }
-  .slider-actions button.reset-btn:hover{ border-color:var(--ok); color:var(--ok); }
+  @media (max-width:640px){ .connect-row{grid-template-columns:1fr;} .connect-actions{width:100%;} }
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <header>
-    <div class="eyebrow"><span class="dot"></span>LIVE CONSOLE — BRIDGE MODE</div>
+    <div class="eyebrow"><span class="dot"></span>LIVE CONSOLE — MULTI-SESSION TEST BUILD</div>
     <h1>Indexx<span>ADBMenu</span></h1>
-    <p class="sub">Same Reference Grid, Now Wired To A Local Bridge Process That Actually Runs Commands. Click A Card To Send It, Or Type Freeform Below.</p>
-
-    <div class="connect-panel">
-      <div>
-        <div class="status-row">
-          <div class="status-led" id="statusLed"></div>
-          <div class="status-text" id="statusText">Bridge Not Connected</div>
-        </div>
-        <div class="status-detail" id="statusDetail">Start The Local Bridge Server, Then Click Connect.</div>
-
-        <div class="caveat">
-          <strong>How This Differs From The Static Version:</strong> A Browser Tab Can't Open A Raw Socket To <code>adb</code> Or Do The USB ADB Auth Handshake On Its Own. This Page Talks Over <code>ws://127.0.0.1:8765</code> To <code>adb_bridge_server.py</code> Running On Your Machine — That Process Holds The Actual Persistent Shell And Executes Everything. Nothing Executes If The Bridge Isn't Running.
-        </div>
-        <div class="caveat" style="border-left-color:var(--ok-dim);">
-          <strong>Host Vs Device Commands:</strong> Cards Like <code>adb reboot</code> Or <code>adb tcpip 5555</code> Run On Your Mac Against The Device (No Shell Needed). Cards Without An <code>adb</code> Prefix (<code>getprop</code>, <code>pm list packages</code>, Etc.) Run Inside The Attached Device Shell. The Bridge Now Routes Each Automatically Based On Whether It Starts With <code>adb</code>.
-        </div>
-      </div>
-      <div class="connect-actions">
-        <button class="primary" id="connectBtn">Connect Bridge</button>
-        <select class="device-select" id="deviceSelect"><option>-- No Devices --</option></select>
-        <button class="primary" id="attachBtn" disabled>Attach Shell</button>
-      </div>
-    </div>
+    <p class="sub">Each Tab Is Its Own Bridge Connection And Its Own Attached Shell — Plug In Multiple Headsets And Drive Them Independently.</p>
+    <div class="testbuild-tag">test build — expect rough edges</div>
+    <div class="tabs-bar" id="tabsBar"></div>
   </header>
 
-  <div class="console-section">
-    <div class="console-head">
-      <h2>Console Output</h2>
-      <div class="tag" id="shellTag">no shell attached</div>
-    </div>
-    <div id="console"></div>
-    <div class="console-input-row">
-      <input type="text" id="freeformInput" placeholder="Freeform Shell Command — Press Enter To Send" disabled>
-      <button id="freeformBtn" disabled>Send</button>
-    </div>
-  </div>
-
-  <div class="dash sliders-section">
-    <div class="sliders-head">
-      <h2>Adjustable Properties</h2>
-      <span class="tag" id="slidersTag">no shell attached</span>
-    </div>
-    <div class="sliders-note">
-      Each Slider Runs <code>setprop &lt;key&gt; &lt;value&gt;</code> Inside The Attached Device Shell When Released. Ranges And Prop Names Below Are Community-documented Oculus/Meta Debug Props, Not From Official Meta Docs — Confirmed Working On Quest 2/3 In Common Use, But Not Guaranteed Across Every Firmware Version. Reset Puts It Back To The Stock Default Shown. Refresh Rate Only Accepts The Steps Your Headset Actually Supports; Unsupported Values Are Silently Ignored By The Compositor.
-    </div>
-    <div class="slider-grid" id="sliderGrid"></div>
-  </div>
+  <div id="sessionsContainer"></div>
 
   <div class="dash">
     <div class="dash-head">
       <h2>Command Reference <span class="count" id="resultCount"></span></h2>
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search Commands, Props, Keywords...">
-      </div>
+      <div class="search-box"><input type="text" id="searchInput" placeholder="Search Commands, Props, Keywords..."></div>
     </div>
-
     <div class="filters" id="filters"></div>
-
     <div class="cmd-grid" id="cmdGrid"></div>
     <div class="empty-state" id="emptyState" style="display:none;">No Commands Match That Search.</div>
   </div>
 
   <footer>
-    <div>IndexxADBMenu — Live Mode Requires adb_bridge_server.py Running Locally</div>
+    <div>IndexxADBMenu — Requires adb_bridge_server.py Running Locally. Commands Run Against Whichever Tab Is Active.</div>
     <div id="totalCount"></div>
   </footer>
 </div>
 
 <script>
-// ---------- Command dataset (same as reference version) ----------
+// =====================================================================
+// Command reference dataset (shared across all sessions)
+// =====================================================================
 const COMMANDS = [
+  // ---- device / connection ----
   {cat:"device", code:"adb devices -l", desc:"List Connected Devices With Details"},
+  {cat:"device", code:"adb get-state", desc:"Print device/offline/bootloader State"},
+  {cat:"device", code:"adb get-serialno", desc:"Print The Connected Device's Serial"},
+  {cat:"device", code:"adb wait-for-device", desc:"Block Until A Device Is Available"},
   {cat:"device", code:"adb tcpip 5555", desc:"Switch Device To WiFi ADB Mode Over Port 5555"},
+  {cat:"device", code:"adb usb", desc:"Switch Device Back To USB Mode"},
+  {cat:"device", code:"adb connect <ip>:5555", desc:"Connect Over WiFi/TCP"},
+  {cat:"device", code:"adb disconnect", desc:"Disconnect All TCP Devices"},
+  {cat:"device", code:"adb pair <ip>:<port> <code>", desc:"Android 11+ Wireless Debugging Pairing (Not Cable-based Tcpip)"},
+  {cat:"device", code:"adb kill-server", desc:"Stop The adb Server"},
+  {cat:"device", code:"adb start-server", desc:"Start The adb Server"},
+  {cat:"device", code:"adb root", desc:"Restart adbd With Root — Only Works On userdebug/eng Builds; Quest Retail Firmware Is A user Build, So This Will Fail There"},
+  {cat:"device", code:"adb unroot", desc:"Restart adbd Without Root"},
+  {cat:"device", code:"adb remount", desc:"Remount /system Read-write — Requires Root (adb root); Won't Work On Locked Retail Firmware"},
   {cat:"device", code:"adb reboot", desc:"Reboot The Device"},
+  {cat:"device", code:"adb reboot bootloader", desc:"Reboot Into Bootloader (Destructive)"},
+  {cat:"device", code:"adb reboot recovery", desc:"Reboot Into Recovery (Destructive)"},
+  {cat:"device", code:"adb reboot sideload", desc:"Reboot Into Recovery Sideload Mode"},
+  {cat:"device", code:"adb sideload <file>", desc:"Sideload An OTA/update Package From Recovery Sideload Mode"},
 
+  // ---- apps / packages ----
+  {cat:"apps", code:"adb install <apk>", desc:"Install An APK"},
+  {cat:"apps", code:"adb install -r <apk>", desc:"Reinstall, Keeping Data"},
+  {cat:"apps", code:"adb install -d <apk>", desc:"Allow Version Downgrade On Install"},
+  {cat:"apps", code:"adb install -g <apk>", desc:"Grant All Runtime Permissions On Install"},
+  {cat:"apps", code:"adb install-multiple <apk1> <apk2>", desc:"Install Split APKs (Base + Config Splits) As One App"},
+  {cat:"apps", code:"adb uninstall <package>", desc:"Uninstall A Package (Destructive)"},
+  {cat:"apps", code:"adb uninstall -k <package>", desc:"Uninstall But Keep Data/cache (Destructive)"},
+  {cat:"apps", code:"pm list packages", desc:"List All Installed Packages"},
   {cat:"apps", code:"pm list packages -3", desc:"List Only User-installed Packages"},
   {cat:"apps", code:"pm list packages -s", desc:"List Only System Packages"},
+  {cat:"apps", code:"pm list packages -d", desc:"List Only Disabled Packages"},
+  {cat:"apps", code:"pm list packages -e", desc:"List Only Enabled Packages"},
+  {cat:"apps", code:"pm list packages -f", desc:"List Packages With Their APK Path"},
+  {cat:"apps", code:"pm list packages -i", desc:"List Packages With Installer Source"},
+  {cat:"apps", code:"pm path <package>", desc:"Show Installed APK Path For A Package"},
+  {cat:"apps", code:"pm clear <package>", desc:"Wipe App Data/cache (Destructive)"},
+  {cat:"apps", code:"pm grant <package> <permission>", desc:"Grant A Runtime Permission"},
+  {cat:"apps", code:"pm revoke <package> <permission>", desc:"Revoke A Runtime Permission"},
+  {cat:"apps", code:"pm disable-user <package>", desc:"Disable A Package For The Current User"},
+  {cat:"apps", code:"pm enable <package>", desc:"Re-enable A Disabled Package"},
+  {cat:"apps", code:"pm get-install-location", desc:"Show Default Install Location Setting"},
+  {cat:"apps", code:"cmd package list packages", desc:"Modern cmd-based Equivalent Of pm list packages"},
   {cat:"apps", code:"dumpsys package <package>", desc:"Full Package Info (Replace <package>)"},
+  {cat:"apps", code:"dumpsys package packages", desc:"Dump Every Installed Package's Full Info"},
+  {cat:"apps", code:"am start -n <package>/<activity>", desc:"Launch A Specific Activity"},
+  {cat:"apps", code:"am start -a android.intent.action.VIEW -d <uri>", desc:"Launch Whatever Handles A Given URI (e.g. A Browser)"},
+  {cat:"apps", code:"am force-stop <package>", desc:"Kill An App And All Its Processes"},
+  {cat:"apps", code:"am broadcast -a <action>", desc:"Send A Broadcast Intent By Action Name"},
+  {cat:"apps", code:"monkey -p <package> -v 500", desc:"Fire 500 Random Input Events At A Package (Stress/monkey Testing)"},
+  {cat:"apps", code:"appops get <package>", desc:"Show App-ops Permission State For A Package"},
+  {cat:"apps", code:"appops set <package> <op> <mode>", desc:"Set An App-op Mode (allow/ignore/deny)"},
 
+  // ---- files ----
+  {cat:"files", code:"adb push <local> <remote>", desc:"Copy A File To The Device"},
+  {cat:"files", code:"adb pull <remote> <local>", desc:"Copy A File From The Device"},
+  {cat:"files", code:"adb pull -a <remote> <local>", desc:"Pull, Preserving File Timestamps/mode"},
   {cat:"files", code:"ls -la /sdcard", desc:"List Files On External Storage"},
+  {cat:"files", code:"find <path> -name \"<pattern>\"", desc:"Search For Files By Name Pattern"},
+  {cat:"files", code:"rm <path>", desc:"Delete A File (Destructive)"},
+  {cat:"files", code:"rm -rf <path>", desc:"Recursively Force-delete A Path (Destructive)"},
+  {cat:"files", code:"mkdir -p <path>", desc:"Make A Directory (And Parents If Needed)"},
+  {cat:"files", code:"mv <src> <dst>", desc:"Move/rename A File"},
+  {cat:"files", code:"cp <src> <dst>", desc:"Copy A File On-device"},
+  {cat:"files", code:"cat <file>", desc:"Print A File's Contents"},
   {cat:"files", code:"df -h", desc:"Disk Usage By Partition"},
   {cat:"files", code:"du -sh /sdcard/Android/data", desc:"Size Of App Data Directory"},
+  {cat:"files", code:"stat <file>", desc:"Show File Metadata (size, Timestamps, Perms)"},
+  {cat:"files", code:"chmod 755 <file>", desc:"Change File Permissions"},
 
+  // ---- performance / oculus debug props ----
   {cat:"perf", code:"getprop | grep -i swap", desc:"Find Swap Interval Overrides"},
   {cat:"perf", code:"getprop | grep -i oculus", desc:"Dump Oculus-namespaced Props"},
   {cat:"perf", code:"dumpsys SurfaceFlinger", desc:"Compositor State, Refresh Rate, VSync Phase"},
+  {cat:"perf", code:"dumpsys SurfaceFlinger --latency <window>", desc:"Per-frame Latency/present Timestamps For A Window"},
+  {cat:"perf", code:"dumpsys gfxinfo <package>", desc:"Frame Render Times, Jank Count Summary"},
+  {cat:"perf", code:"dumpsys gfxinfo <package> framestats", desc:"Raw Per-frame Timing CSV (harder To Parse, More Precise)"},
   {cat:"perf", code:"dumpsys thermalservice", desc:"Thermal Throttling State"},
   {cat:"perf", code:"dumpsys cpuinfo", desc:"Per-process CPU Usage Snapshot"},
+  {cat:"perf", code:"dumpsys meminfo <package>", desc:"Memory Usage For One App"},
+  {cat:"perf", code:"dumpsys meminfo", desc:"System-wide Memory Summary, All Processes"},
 
+  // ---- display ----
   {cat:"display", code:"wm size", desc:"Current Display Resolution"},
+  {cat:"display", code:"wm size reset", desc:"Reset Resolution Override Back To Native"},
+  {cat:"display", code:"wm size <WxH>", desc:"Override Display Resolution"},
   {cat:"display", code:"wm density", desc:"Current Display DPI"},
+  {cat:"display", code:"wm density reset", desc:"Reset DPI Override Back To Native"},
+  {cat:"display", code:"wm density <dpi>", desc:"Override Display DPI"},
   {cat:"display", code:"dumpsys display", desc:"Full Display Config, Supported Refresh Rates"},
+  {cat:"display", code:"screencap -p /sdcard/shot.png", desc:"Take A Screenshot To A File On-device"},
+  {cat:"display", code:"adb exec-out screencap -p > shot.png", desc:"Screenshot Straight To A Local File, No On-device File Left Behind"},
+  {cat:"display", code:"screenrecord --time-limit 30 /sdcard/rec.mp4", desc:"Record 30s Of Screen Video To A File"},
 
+  // ---- firmware / identity ----
   {cat:"firmware", code:"getprop ro.build.version.incremental", desc:"Firmware/build Number"},
-  {cat:"firmware", code:"getprop ro.build.fingerprint", desc:"Full Build Fingerprint"},
+  {cat:"firmware", code:"getprop ro.build.fingerprint", desc:"Full Build Fingerprint (Most Reliable Firmware ID)"},
+  {cat:"firmware", code:"getprop ro.build.version.release", desc:"Android OS Version"},
+  {cat:"firmware", code:"getprop ro.build.version.sdk", desc:"Android SDK/API Level"},
+  {cat:"firmware", code:"getprop ro.build.type", desc:"Build Type — user/userdebug/eng. Retail Quest Firmware Is Always user"},
+  {cat:"firmware", code:"getprop ro.build.tags", desc:"Build Tags (e.g. release-keys Vs test-keys)"},
+  {cat:"firmware", code:"getprop ro.build.date", desc:"Build Date Of Current Firmware"},
   {cat:"firmware", code:"getprop ro.product.model", desc:"Device Model Name"},
+  {cat:"firmware", code:"getprop ro.product.manufacturer", desc:"Device Manufacturer"},
+  {cat:"firmware", code:"getprop ro.product.cpu.abi", desc:"Primary CPU ABI (e.g. arm64-v8a)"},
+  {cat:"firmware", code:"getprop ro.serialno", desc:"Device Serial Number As Reported By The OS"},
 
-  {cat:"system", code:"ps", desc:"List Running Processes"},
+  // ---- system ----
+  {cat:"system", code:"getprop", desc:"List All System Properties"},
+  {cat:"system", code:"setprop <key> <value>", desc:"Set A System Property"},
+  {cat:"system", code:"ps -A", desc:"List All Running Processes (All Users)"},
   {cat:"system", code:"top -n 1", desc:"One-shot CPU/mem Snapshot"},
   {cat:"system", code:"dumpsys battery", desc:"Battery Stats/state"},
+  {cat:"system", code:"dumpsys batterystats", desc:"Detailed Historical Battery/wakelock Stats"},
   {cat:"system", code:"dumpsys activity activities", desc:"Current Activity/task Stack"},
+  {cat:"system", code:"dumpsys activity top", desc:"Just The Foreground/topmost Activity"},
+  {cat:"system", code:"dumpsys window windows", desc:"Window Manager State — All Visible Windows"},
+  {cat:"system", code:"dumpsys power", desc:"Power Manager State, Wake Locks, Screen State"},
+  {cat:"system", code:"dumpsys alarm", desc:"Pending/scheduled System Alarms"},
+  {cat:"system", code:"dumpsys usagestats", desc:"Per-app Foreground Usage Time Stats"},
+  {cat:"system", code:"service list", desc:"List All Registered System Services"},
+  {cat:"system", code:"settings get system <key>", desc:"Read A `system` Settings Key"},
+  {cat:"system", code:"settings put system <key> <value>", desc:"Write A `system` Settings Key"},
+  {cat:"system", code:"settings get global <key>", desc:"Read A `global` Settings Key"},
+  {cat:"system", code:"settings put global <key> <value>", desc:"Write A `global` Settings Key"},
+  {cat:"system", code:"settings get secure <key>", desc:"Read A `secure` Settings Key"},
+  {cat:"system", code:"cmd <service> <args>", desc:"Modern Generic Shortcut For Many dumpsys/am-style Service Calls"},
 
+  // ---- network ----
   {cat:"network", code:"ip addr", desc:"Show Network Interfaces/IPs"},
+  {cat:"network", code:"ip route", desc:"Show Routing Table"},
   {cat:"network", code:"dumpsys wifi", desc:"WiFi Connection/state Details"},
+  {cat:"network", code:"dumpsys connectivity", desc:"Active Network Connections"},
+  {cat:"network", code:"dumpsys netstats", desc:"Per-app Network Data Usage Stats"},
+  {cat:"network", code:"svc wifi enable", desc:"Turn WiFi On"},
+  {cat:"network", code:"svc wifi disable", desc:"Turn WiFi Off"},
+  {cat:"network", code:"adb reverse tcp:<port> tcp:<port>", desc:"Forward Device Port To Host (device → Host)"},
+  {cat:"network", code:"adb forward tcp:<port> tcp:<port>", desc:"Forward Host Port To Device (host → Device)"},
+  {cat:"network", code:"adb forward --list", desc:"List Active Port Forwards"},
+  {cat:"network", code:"adb reverse --list", desc:"List Active Reverse Forwards"},
 
+  // ---- input ----
+  {cat:"input", code:"input tap <x> <y>", desc:"Simulate A Screen Tap"},
+  {cat:"input", code:"input swipe <x1> <y1> <x2> <y2> <duration>", desc:"Simulate A Swipe Gesture"},
+  {cat:"input", code:"input text \"<string>\"", desc:"Type A String Into The Focused Field"},
+  {cat:"input", code:"input keyevent KEYCODE_HOME", desc:"Press Home"},
   {cat:"input", code:"input keyevent KEYCODE_BACK", desc:"Press Back Button"},
+  {cat:"input", code:"input keyevent KEYCODE_POWER", desc:"Simulate Power Button Press"},
+  {cat:"input", code:"input keyevent KEYCODE_VOLUME_UP", desc:"Simulate Volume Up"},
   {cat:"input", code:"uiautomator dump", desc:"Dump UI Hierarchy To XML"},
+  {cat:"input", code:"getevent", desc:"Stream Raw Input Events (touch/buttons) As They Happen"},
+
+  // ---- logs / diagnostics ----
+  {cat:"logs", code:"adb logcat", desc:"Stream Full Device Log"},
+  {cat:"logs", code:"adb logcat -c", desc:"Clear The Log Buffer"},
+  {cat:"logs", code:"adb logcat -s <tag>", desc:"Filter By A Specific Log Tag"},
+  {cat:"logs", code:"adb logcat -v time", desc:"Include Timestamps In Log Output"},
+  {cat:"logs", code:"adb logcat -b crash", desc:"Show Only The Crash Log Buffer"},
+  {cat:"logs", code:"adb logcat -d > log.txt", desc:"Dump Current Log To A File And Exit (vs Streaming)"},
+  {cat:"logs", code:"adb bugreport <path>", desc:"Generate A Full System Diagnostic Dump"},
+  {cat:"logs", code:"dmesg", desc:"Kernel Ring Buffer — Often Restricted/empty Without Root On Retail Builds"},
+
+  // ---- backup ----
+  {cat:"backup", code:"adb backup -apk -all -f backup.ab", desc:"Full Device Backup To A Local .ab File (Needs On-device Confirmation; Many Apps Opt Out)"},
+  {cat:"backup", code:"adb restore backup.ab", desc:"Restore From A Previous adb backup"},
 ];
 
+// Prop names/ranges are community-documented Oculus/Meta debug props from
+// common Quest performance-tuning writeups, NOT from an official Meta spec.
+// Widely reported as working on Quest 2/3; not guaranteed across every
+// firmware version. Use "Sync" after attaching to read real current values.
+const SLIDERS = [
+  { key:"debug.oculus.cpuLevel", label:"CPU Level", min:0, max:4, step:1, default:2,
+    desc:"Oculus CPU perf level. Higher = more headroom for game logic/physics, more heat & battery draw." },
+  { key:"debug.oculus.gpuLevel", label:"GPU Level", min:0, max:4, step:1, default:2,
+    desc:"Oculus GPU perf level. Higher = more rendering headroom, more heat & battery draw." },
+  { key:"debug.oculus.foveation.level", label:"Foveation Level", min:0, max:4, step:1, default:1,
+    desc:"Fixed Foveated Rendering strength — reduces shading cost toward the lens periphery. 0 = off." },
+  { key:"debug.oculus.swapInterval", label:"Swap Interval", min:0, max:20, step:1, default:1,
+    desc:"Frame-swap divisor, not a vsync toggle — higher values skip more compositor swaps per frame (effectively caps FPS lower)." },
+  { key:"debug.oculus.refreshRate", label:"Refresh Rate", min:0, max:3, step:1, default:2, valuesMap:[60,72,80,90], unit:"Hz",
+    desc:"Maps to discrete supported rates on Quest 2 (60/72/80/90Hz). Unsupported steps are ignored by the compositor rather than erroring." },
+  { key:"debug.oculus.textureWidth", label:"Render Target Width", min:1024, max:4096, step:32, default:3616, unit:"px",
+    desc:"Eye-buffer render width per eye. Actual effect depends on whether the running app reads this prop." },
+];
+
+// Commands matched against this are confirmed via window.confirm() before
+// sending, regardless of which path (card, slider, freeform) triggered them.
+const DESTRUCTIVE_PATTERNS = [
+  /\breboot\b/i, /\buninstall\b/i, /\bpm\s+clear\b/i, /\brm\s+-?r?f?\s/i,
+  /\bfactory\b.*reset/i, /\bwipe\b/i, /\bformat\b/i,
+];
+function isDestructive(line){
+  return DESTRUCTIVE_PATTERNS.some(re => re.test(line));
+}
+
+function displayValue(def, rawValue){ const v = def.valuesMap ? def.valuesMap[rawValue] : rawValue; return def.unit ? `${v}${def.unit}` : `${v}`; }
+function actualValue(def, rawValue){ return def.valuesMap ? def.valuesMap[rawValue] : rawValue; }
+function indexForDefault(def){ return def.valuesMap ? def.valuesMap.indexOf(def.default) : def.default; }
+function indexForActual(def, actual){
+  if (def.valuesMap){ const i = def.valuesMap.indexOf(Number(actual)); return i >= 0 ? i : indexForDefault(def); }
+  const n = Number(actual);
+  return Number.isFinite(n) ? Math.min(def.max, Math.max(def.min, n)) : def.default;
+}
+
+// =====================================================================
+// Session: one bridge WebSocket connection + one attached shell + its
+// own console, sliders, tools, and history. Multiple sessions can be
+// open (and attached to different devices) at once.
+// =====================================================================
+let sessionCounter = 0;
+
+class Session {
+  constructor(){
+    this.id = ++sessionCounter;
+    this.ws = null;
+    this.shellAttached = false;
+    this.serial = null;
+    this.history = []; // {line, fav}
+    this.fpsTimer = null;
+    this.fpsData = [];
+    this.el = this.buildDom();
+    this.connectBridge();
+  }
+
+  buildDom(){
+    const root = document.createElement('div');
+    root.className = 'session-panel';
+    root.innerHTML = `
+      <div class="connect-row">
+        <div>
+          <div class="status-row">
+            <div class="status-led" data-ref="statusLed"></div>
+            <div class="status-text" data-ref="statusText">Bridge Not Connected</div>
+          </div>
+          <div class="status-detail" data-ref="statusDetail">Start The Local Bridge Server, Then Pick A Device.</div>
+          <div class="caveat">
+            <strong>Host Vs Device Commands:</strong> Cards Starting With <code>adb</code> Run On Your Mac Against The Device. Everything Else Runs Inside The Attached Shell. Commands Matching Reboot/uninstall/clear/rm/wipe/format Ask For Confirmation First.
+          </div>
+        </div>
+        <div class="connect-actions">
+          <select class="device-select" data-ref="deviceSelect"><option>-- No Devices --</option></select>
+          <button class="primary" data-ref="attachBtn" disabled>Attach Shell</button>
+        </div>
+      </div>
+
+      <div class="section-h">Console Output <span class="tag" data-ref="shellTag">no shell attached</span></div>
+      <div id="console-tpl" data-ref="consoleEl"></div>
+      <div class="console-input-row">
+        <input type="text" data-ref="freeformInput" placeholder="Freeform Shell Command — Press Enter To Send" disabled>
+        <button data-ref="freeformBtn" disabled>Send</button>
+      </div>
+
+      <div class="section-h">Adjustable Properties <span class="tag" data-ref="slidersTag">no shell attached</span>
+        <button class="primary" data-ref="syncBtn" style="padding:6px 14px; font-size:11px;" disabled>Sync From Device</button>
+      </div>
+      <div class="slider-grid" data-ref="sliderGrid"></div>
+
+      <div class="section-h">Tools</div>
+      <div class="tools-grid">
+        <div class="tool-card">
+          <h4>Screenshot</h4>
+          <p>Captures the current headset display via exec-out screencap (no file left on device).</p>
+          <button data-ref="screenshotBtn" disabled>Capture Screenshot</button>
+          <div class="screenshot-box" data-ref="screenshotBox"><img data-ref="screenshotImg"></div>
+        </div>
+        <div class="tool-card">
+          <h4>Wireless ADB</h4>
+          <p>Switches to tcpip mode and reports the headset's WiFi IP so you can disconnect the cable.</p>
+          <button data-ref="wirelessBtn" disabled>Enable Wireless + Get IP</button>
+          <div class="wireless-result" data-ref="wirelessResult"></div>
+        </div>
+        <div class="tool-card">
+          <h4>FPS / Jank Monitor</h4>
+          <p>Polls dumpsys gfxinfo for a package every 3s. Enter the package name running in-headset.</p>
+          <input type="text" data-ref="fpsPackageInput" placeholder="e.g. com.yourcompany.yourgame">
+          <button data-ref="fpsToggleBtn" disabled>Start Monitoring</button>
+          <div class="fps-readout" data-ref="fpsReadout"></div>
+          <svg class="sparkline" data-ref="fpsSpark" viewBox="0 0 200 36" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+
+      <div class="section-h">History <span class="tag" data-ref="historyTag">0 commands</span></div>
+      <div class="history-list" data-ref="historyList"><div class="history-empty">No commands run yet this session.</div></div>
+    `;
+    const refs = {};
+    root.querySelectorAll('[data-ref]').forEach(elm => { refs[elm.dataset.ref] = elm; });
+    this.refs = refs;
+
+    refs.attachBtn.addEventListener('click', () => this.attach());
+    refs.freeformBtn.addEventListener('click', () => this.sendFromInput());
+    refs.freeformInput.addEventListener('keydown', e => { if (e.key === 'Enter') this.sendFromInput(); });
+    refs.syncBtn.addEventListener('click', () => this.syncSliders());
+    refs.screenshotBtn.addEventListener('click', () => this.requestScreenshot());
+    refs.wirelessBtn.addEventListener('click', () => this.requestWireless());
+    refs.fpsToggleBtn.addEventListener('click', () => this.toggleFps());
+
+    this.sliderRefs = []; // {def, input, valueEl}
+    SLIDERS.forEach(def => {
+      const card = document.createElement('div');
+      card.className = 'slider-card';
+      const startIndex = indexForDefault(def);
+      card.innerHTML = `
+        <div class="slider-top"><div class="slider-label">${def.label}</div><div class="slider-value">${displayValue(def, startIndex)}</div></div>
+        <div class="slider-desc">${def.desc}</div>
+        <input type="range" class="adb-slider" min="${def.min}" max="${def.max}" step="${def.step}" value="${startIndex}" disabled>
+        <div class="slider-bottom">
+          <div class="slider-prop">${def.key}</div>
+          <div class="slider-actions"><button class="reset-btn" disabled>Reset</button></div>
+        </div>
+      `;
+      const input = card.querySelector('.adb-slider');
+      const valueEl = card.querySelector('.slider-value');
+      const resetBtn = card.querySelector('.reset-btn');
+      input.addEventListener('input', () => { valueEl.textContent = displayValue(def, input.value); });
+      input.addEventListener('change', () => this.sendCommand(`setprop ${def.key} ${actualValue(def, input.value)}`));
+      resetBtn.addEventListener('click', () => {
+        input.value = indexForDefault(def); valueEl.textContent = displayValue(def, input.value);
+        this.sendCommand(`setprop ${def.key} ${def.default}`);
+      });
+      this.sliderRefs.push({ def, input, valueEl, resetBtn });
+      refs.sliderGrid.appendChild(card);
+    });
+
+    return root;
+  }
+
+  log(text, cls){
+    const div = document.createElement('div');
+    if (cls) div.className = cls;
+    div.textContent = text;
+    this.refs.consoleEl.appendChild(div);
+    this.refs.consoleEl.scrollTop = this.refs.consoleEl.scrollHeight;
+  }
+
+  connectBridge(){
+    this.refs.statusText.textContent = 'Connecting To Bridge...';
+    this.ws = new WebSocket('ws://127.0.0.1:8765');
+
+    this.ws.onopen = () => {
+      this.refs.statusLed.className = 'status-led on';
+      this.refs.statusText.textContent = 'Bridge Connected';
+      this.refs.statusDetail.textContent = 'Requesting Device List...';
+      this.log('[bridge connected]', 'l-sys');
+      this.ws.send(JSON.stringify({type:'devices'}));
+      updateTabs();
+    };
+    this.ws.onclose = () => {
+      this.refs.statusLed.className = 'status-led err';
+      this.refs.statusText.textContent = 'Bridge Disconnected';
+      this.refs.statusDetail.textContent = 'Is adb_bridge_server.py running? (python3 adb_bridge_server.py)';
+      this.setShellState(false);
+      this.log('[bridge disconnected]', 'l-err');
+      updateTabs();
+    };
+    this.ws.onerror = () => this.log('[websocket error — start the local bridge server first]', 'l-err');
+    this.ws.onmessage = evt => this.handleMessage(JSON.parse(evt.data));
+  }
+
+  handleMessage(msg){
+    switch(msg.type){
+      case 'devices': {
+        const sel = this.refs.deviceSelect;
+        sel.innerHTML = '';
+        if (!msg.devices.length){
+          sel.innerHTML = '<option>-- No Devices --</option>';
+          this.refs.statusDetail.textContent = 'No devices found. Check USB debugging is enabled and authorized.';
+        } else {
+          msg.devices.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o); });
+          this.refs.attachBtn.disabled = false;
+          this.refs.statusDetail.textContent = `Found ${msg.devices.length} device(s). Pick one and attach a shell.`;
+        }
+        break;
+      }
+      case 'connected':
+        this.serial = msg.serial;
+        this.setShellState(true);
+        this.log(`[shell attached: ${msg.serial}]`, 'l-sys');
+        updateTabs();
+        break;
+      case 'disconnected':
+        this.setShellState(false);
+        this.log('[shell detached]', 'l-sys');
+        updateTabs();
+        break;
+      case 'output':
+        this.log(msg.line, 'l-out');
+        break;
+      case 'propvalue': {
+        const target = this.sliderRefs.find(s => s.def.key === msg.key);
+        if (target){
+          const idx = indexForActual(target.def, msg.value);
+          target.input.value = idx;
+          target.valueEl.textContent = displayValue(target.def, idx);
+        }
+        break;
+      }
+      case 'gfxstats':
+        this.handleGfxStats(msg);
+        break;
+      case 'screenshot':
+        this.refs.screenshotImg.src = msg.dataUrl;
+        this.refs.screenshotBox.style.display = 'block';
+        this.log('[screenshot captured]', 'l-sys');
+        break;
+      case 'wireless':
+        this.refs.wirelessResult.textContent = msg.ip
+          ? `Wireless enabled. Connect via: adb connect ${msg.ip}:5555 (then unplug the cable)`
+          : 'tcpip mode enabled, but could not read a WiFi IP (is WiFi connected on the headset?)';
+        break;
+      case 'error':
+        this.log('[error] ' + msg.message, 'l-err');
+        break;
+    }
+  }
+
+  setShellState(attached){
+    this.shellAttached = attached;
+    const r = this.refs;
+    r.freeformInput.disabled = !attached;
+    r.freeformBtn.disabled = !attached;
+    r.syncBtn.disabled = !attached;
+    r.screenshotBtn.disabled = !attached;
+    r.wirelessBtn.disabled = !attached;
+    r.fpsToggleBtn.disabled = !attached;
+    this.sliderRefs.forEach(s => { s.input.disabled = !attached; s.resetBtn.disabled = !attached; });
+    r.shellTag.textContent = attached ? `shell attached: ${this.serial}` : 'no shell attached';
+    r.slidersTag.textContent = attached ? `shell attached: ${this.serial}` : 'no shell attached';
+    if (this.id === activeSessionId){
+      document.querySelectorAll('#cmdGrid .run-btn').forEach(b => b.disabled = !attached);
+    }
+    if (!attached) this.stopFps();
+  }
+
+  attach(){
+    const serial = this.refs.deviceSelect.value;
+    if (!serial || serial.startsWith('--')) { this.log('[pick a device first]', 'l-err'); return; }
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) { this.log('[bridge not connected]', 'l-err'); return; }
+    this.ws.send(JSON.stringify({type:'connect', serial}));
+  }
+
+  sendFromInput(){
+    const line = this.refs.freeformInput.value.trim();
+    if (!line) return;
+    this.sendCommand(line);
+    this.refs.freeformInput.value = '';
+  }
+
+  sendCommand(line){
+    if (!this.shellAttached || !this.ws || this.ws.readyState !== WebSocket.OPEN){
+      this.log('[attach a shell before sending commands]', 'l-err');
+      return;
+    }
+    if (isDestructive(line)){
+      const ok = window.confirm(`This looks destructive:\n\n${line}\n\nRun it anyway?`);
+      if (!ok) { this.log('[cancelled] ' + line, 'l-sys'); return; }
+    }
+    this.log('$ ' + line, 'l-cmd');
+    this.ws.send(JSON.stringify({type:'cmd', line}));
+    this.pushHistory(line);
+  }
+
+  pushHistory(line){
+    this.history.unshift({ line, fav:false });
+    this.history = this.history.slice(0, 40);
+    this.renderHistory();
+  }
+
+  renderHistory(){
+    const list = this.refs.historyList;
+    list.innerHTML = '';
+    if (!this.history.length){ list.innerHTML = '<div class="history-empty">No commands run yet this session.</div>'; }
+    this.history.forEach(h => {
+      const item = document.createElement('div');
+      item.className = 'history-item' + (h.fav ? ' fav' : '');
+      item.innerHTML = `<span class="h-star">${h.fav ? '★' : '☆'}</span><span class="h-code">${h.line}</span><button>↻</button>`;
+      item.querySelector('.h-star').addEventListener('click', () => { h.fav = !h.fav; this.renderHistory(); });
+      item.querySelector('.h-code').addEventListener('click', () => this.sendCommand(h.line));
+      item.querySelector('button').addEventListener('click', () => this.sendCommand(h.line));
+      list.appendChild(item);
+    });
+    this.refs.historyTag.textContent = `${this.history.length} command${this.history.length === 1 ? '' : 's'}`;
+  }
+
+  syncSliders(){
+    if (!this.shellAttached) return;
+    this.log('[syncing sliders from device...]', 'l-sys');
+    SLIDERS.forEach(def => this.ws.send(JSON.stringify({type:'getprop', key: def.key})));
+  }
+
+  requestScreenshot(){
+    if (!this.shellAttached) return;
+    this.log('[requesting screenshot...]', 'l-sys');
+    this.ws.send(JSON.stringify({type:'screenshot'}));
+  }
+
+  requestWireless(){
+    if (!this.shellAttached) return;
+    this.log('[switching to wireless mode...]', 'l-sys');
+    this.ws.send(JSON.stringify({type:'wireless'}));
+  }
+
+  toggleFps(){
+    if (this.fpsTimer) { this.stopFps(); return; }
+    const pkg = this.refs.fpsPackageInput.value.trim();
+    if (!pkg) { this.log('[enter a package name first]', 'l-err'); return; }
+    this.fpsData = [];
+    this.refs.fpsToggleBtn.textContent = 'Stop Monitoring';
+    const poll = () => this.ws.send(JSON.stringify({type:'gfxinfo', package: pkg}));
+    poll();
+    this.fpsTimer = setInterval(poll, 3000);
+  }
+
+  stopFps(){
+    if (this.fpsTimer) clearInterval(this.fpsTimer);
+    this.fpsTimer = null;
+    if (this.refs && this.refs.fpsToggleBtn) this.refs.fpsToggleBtn.textContent = 'Start Monitoring';
+  }
+
+  handleGfxStats(msg){
+    if (msg.jankyPercent === null && msg.totalFrames === null){
+      this.refs.fpsReadout.textContent = msg.raw ? 'No summary line found — is the package actively rendering frames?' : 'No data.';
+      return;
+    }
+    this.refs.fpsReadout.textContent = `Janky: ${msg.jankyPercent ?? '?'}%  ·  Total frames: ${msg.totalFrames ?? '?'}`;
+    this.fpsData.push(msg.jankyPercent ?? 0);
+    this.fpsData = this.fpsData.slice(-40);
+    this.drawSparkline();
+  }
+
+  drawSparkline(){
+    const svg = this.refs.fpsSpark;
+    const w = 200, h = 36;
+    const max = Math.max(10, ...this.fpsData);
+    const pts = this.fpsData.map((v, i) => {
+      const x = this.fpsData.length > 1 ? (i / (this.fpsData.length - 1)) * w : 0;
+      const y = h - (v / max) * h;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    svg.innerHTML = `<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="1.5" />`;
+  }
+
+  destroy(){
+    this.stopFps();
+    if (this.ws) { try { this.ws.close(); } catch(e){} }
+  }
+}
+
+// =====================================================================
+// Session/tab management
+// =====================================================================
+const sessions = [];
+let activeSessionId = null;
+
+function newSession(){
+  const s = new Session();
+  s.el.id = `session-${s.id}`;
+  sessions.push(s);
+  document.getElementById('sessionsContainer').appendChild(s.el);
+  setActiveSession(s.id);
+}
+
+function setActiveSession(id){
+  activeSessionId = id;
+  sessions.forEach(s => s.el.classList.toggle('hidden', s.id !== id));
+  const s = getActiveSession();
+  document.querySelectorAll('#cmdGrid .run-btn').forEach(b => b.disabled = !(s && s.shellAttached));
+  updateTabs();
+}
+
+function getActiveSession(){
+  return sessions.find(s => s.id === activeSessionId) || null;
+}
+
+function closeSession(id){
+  const idx = sessions.findIndex(s => s.id === id);
+  if (idx === -1) return;
+  sessions[idx].destroy();
+  sessions[idx].el.remove();
+  sessions.splice(idx, 1);
+  if (activeSessionId === id) {
+    setActiveSession(sessions.length ? sessions[Math.max(0, idx - 1)].id : null);
+  } else {
+    updateTabs();
+  }
+}
+
+function updateTabs(){
+  const bar = document.getElementById('tabsBar');
+  bar.innerHTML = '';
+  sessions.forEach(s => {
+    const btn = document.createElement('div');
+    btn.className = 'tab-btn' + (s.id === activeSessionId ? ' active' : '');
+    const label = s.serial ? s.serial : `Session ${s.id}`;
+    btn.innerHTML = `<span class="tab-led ${s.shellAttached ? 'on' : ''}"></span><span>${label}</span><span class="tab-close">×</span>`;
+    btn.querySelector('span:nth-child(2)').addEventListener('click', () => setActiveSession(s.id));
+    btn.querySelector('.tab-close').addEventListener('click', e => { e.stopPropagation(); closeSession(s.id); });
+    bar.appendChild(btn);
+  });
+  const newBtn = document.createElement('button');
+  newBtn.className = 'new-tab-btn';
+  newBtn.textContent = '+';
+  newBtn.title = 'New session (new device / new bridge connection)';
+  newBtn.addEventListener('click', newSession);
+  bar.appendChild(newBtn);
+}
+
+// =====================================================================
+// Shared command reference grid — Run targets the active session
+// =====================================================================
 const CATS = ["all", ...Array.from(new Set(COMMANDS.map(c => c.cat)))];
 let activeCat = "all";
-
 const filtersEl = document.getElementById("filters");
 CATS.forEach(cat => {
   const chip = document.createElement("div");
@@ -387,7 +846,6 @@ function renderCommands(){
     const matchesSearch = !q || c.code.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q) || c.cat.includes(q);
     return matchesCat && matchesSearch;
   });
-
   resultCount.textContent = "(" + filtered.length + ")";
   cmdGrid.innerHTML = "";
   emptyState.style.display = filtered.length ? "none" : "block";
@@ -411,257 +869,21 @@ function renderCommands(){
       flag.classList.add("show");
       setTimeout(() => flag.classList.remove("show"), 1100);
     });
-    const runBtn = card.querySelector(".run-btn");
-    runBtn.addEventListener("click", () => sendCommand(c.code));
-    runButtons.push(runBtn);
+    const rb = card.querySelector(".run-btn");
+    rb.disabled = !(getActiveSession() && getActiveSession().shellAttached);
+    rb.addEventListener("click", () => {
+      const s = getActiveSession();
+      if (!s) return;
+      s.sendCommand(c.code);
+    });
     cmdGrid.appendChild(card);
   });
 }
-let runButtons = [];
 document.getElementById("searchInput").addEventListener("input", renderCommands);
 renderCommands();
 
-// ---------- Adjustable properties (sliders) ----------
-// Prop names/ranges below are community-documented Oculus/Meta debug props
-// (commonly referenced in Quest performance-tuning writeups), NOT pulled
-// from an official Meta spec sheet -- Gorilla Tag/Quest internals aren't
-// publicly documented source. Confirmed as commonly-working on Quest 2/3;
-// treat exact defaults as best-known-typical, not guaranteed per firmware.
-const SLIDERS = [
-  {
-    key: "debug.oculus.cpuLevel", label: "CPU Level",
-    min: 0, max: 4, step: 1, default: 2,
-    desc: "Oculus CPU perf level. Higher = more headroom for game logic/physics, more heat & battery draw."
-  },
-  {
-    key: "debug.oculus.gpuLevel", label: "GPU Level",
-    min: 0, max: 4, step: 1, default: 2,
-    desc: "Oculus GPU perf level. Higher = more rendering headroom, more heat & battery draw."
-  },
-  {
-    key: "debug.oculus.foveation.level", label: "Foveation Level",
-    min: 0, max: 4, step: 1, default: 1,
-    desc: "Fixed Foveated Rendering strength — reduces shading cost toward the lens periphery. 0 = off."
-  },
-  {
-    key: "debug.oculus.swapInterval", label: "Swap Interval",
-    min: 0, max: 20, step: 1, default: 1,
-    desc: "Frame-swap divisor, not a vsync on/off toggle — higher values skip more compositor swaps per frame (effectively caps FPS lower). Corrected from debug.egl.swapinterval, which is the generic EGL prop rather than the Oculus-specific one."
-  },
-  {
-    key: "debug.oculus.refreshRate", label: "Refresh Rate",
-    min: 0, max: 3, step: 1, default: 2,
-    valuesMap: [60, 72, 80, 90], unit: "Hz",
-    desc: "Maps to discrete supported rates on Quest 2 (60/72/80/90Hz). Unsupported steps are ignored by the compositor rather than erroring."
-  },
-  {
-    key: "debug.oculus.textureWidth", label: "Render Target Width",
-    min: 1024, max: 4096, step: 32, default: 3616, unit: "px",
-    desc: "Eye-buffer render width per eye. Higher = sharper image, heavier GPU load. Actual in-app effect depends on whether the running app reads this prop."
-  },
-];
-
-const sliderGrid = document.getElementById("sliderGrid");
-const slidersTag = document.getElementById("slidersTag");
-let sliderControls = []; // {input, valueEl} pairs, toggled alongside runButtons
-
-function displayValue(def, rawValue){
-  const v = def.valuesMap ? def.valuesMap[rawValue] : rawValue;
-  return def.unit ? `${v}${def.unit}` : `${v}`;
-}
-function actualValue(def, rawValue){
-  return def.valuesMap ? def.valuesMap[rawValue] : rawValue;
-}
-function indexForDefault(def){
-  return def.valuesMap ? def.valuesMap.indexOf(def.default) : def.default;
-}
-
-SLIDERS.forEach(def => {
-  const card = document.createElement("div");
-  card.className = "slider-card";
-  const startIndex = indexForDefault(def);
-  card.innerHTML = `
-    <div class="slider-top">
-      <div class="slider-label">${def.label}</div>
-      <div class="slider-value">${displayValue(def, startIndex)}</div>
-    </div>
-    <div class="slider-desc">${def.desc}</div>
-    <div class="slider-track-row">
-      <input type="range" class="adb-slider" min="${def.min}" max="${def.max}" step="${def.step}" value="${startIndex}" disabled>
-    </div>
-    <div class="slider-bottom">
-      <div class="slider-prop">${def.key}</div>
-      <div class="slider-actions">
-        <button class="reset-btn" disabled>Reset</button>
-      </div>
-    </div>
-  `;
-
-  const input = card.querySelector(".adb-slider");
-  const valueEl = card.querySelector(".slider-value");
-  const resetBtn = card.querySelector(".reset-btn");
-
-  input.addEventListener("input", () => {
-    valueEl.textContent = displayValue(def, input.value);
-  });
-  input.addEventListener("change", () => {
-    const v = actualValue(def, input.value);
-    sendCommand(`setprop ${def.key} ${v}`);
-  });
-  resetBtn.addEventListener("click", () => {
-    input.value = indexForDefault(def);
-    valueEl.textContent = displayValue(def, input.value);
-    sendCommand(`setprop ${def.key} ${def.default}`);
-  });
-
-  sliderControls.push({ input, resetBtn });
-  sliderGrid.appendChild(card);
-});
-
-
-// ---------- Bridge WebSocket ----------
-const connectBtn = document.getElementById("connectBtn");
-const attachBtn = document.getElementById("attachBtn");
-const deviceSelect = document.getElementById("deviceSelect");
-const statusLed = document.getElementById("statusLed");
-const statusText = document.getElementById("statusText");
-const statusDetail = document.getElementById("statusDetail");
-const consoleEl = document.getElementById("console");
-const shellTag = document.getElementById("shellTag");
-const freeformInput = document.getElementById("freeformInput");
-const freeformBtn = document.getElementById("freeformBtn");
-
-let ws = null;
-let shellAttached = false;
-
-function logLine(text, cls){
-  const div = document.createElement("div");
-  if (cls) div.className = cls;
-  div.textContent = text;
-  consoleEl.appendChild(div);
-  consoleEl.scrollTop = consoleEl.scrollHeight;
-}
-
-function setShellState(attached){
-  shellAttached = attached;
-  freeformInput.disabled = !attached;
-  freeformBtn.disabled = !attached;
-  runButtons.forEach(b => b.disabled = !attached);
-  sliderControls.forEach(({input, resetBtn}) => {
-    input.disabled = !attached;
-    resetBtn.disabled = !attached;
-  });
-  shellTag.textContent = attached ? "shell attached" : "no shell attached";
-  slidersTag.textContent = attached ? "shell attached" : "no shell attached";
-}
-
-function connectBridge(){
-  statusText.textContent = "Connecting To Bridge...";
-  ws = new WebSocket("ws://127.0.0.1:8765");
-
-  ws.onopen = () => {
-    statusLed.className = "status-led on";
-    statusText.textContent = "Bridge Connected";
-    statusDetail.textContent = "Requesting Device List...";
-    logLine("[bridge connected]", "l-sys");
-    ws.send(JSON.stringify({type:"devices"}));
-  };
-
-  ws.onclose = () => {
-    statusLed.className = "status-led err";
-    statusText.textContent = "Bridge Disconnected";
-    statusDetail.textContent = "Is adb_bridge_server.py Running? (python3 adb_bridge_server.py)";
-    setShellState(false);
-    logLine("[bridge disconnected]", "l-err");
-  };
-
-  ws.onerror = () => {
-    logLine("[websocket error — start the local bridge server first]", "l-err");
-  };
-
-  ws.onmessage = (evt) => {
-    const msg = JSON.parse(evt.data);
-    switch(msg.type){
-      case "devices":
-        deviceSelect.innerHTML = "";
-        if (!msg.devices.length){
-          deviceSelect.innerHTML = "<option>-- No Devices --</option>";
-          statusDetail.textContent = "No Devices Found. Check USB Debugging Is Enabled And Authorized On The Headset.";
-        } else {
-          msg.devices.forEach(d => {
-            const opt = document.createElement("option");
-            opt.value = d; opt.textContent = d;
-            deviceSelect.appendChild(opt);
-          });
-          attachBtn.disabled = false;
-          statusDetail.textContent = `Found ${msg.devices.length} Device(s). Pick One And Attach A Shell.`;
-        }
-        break;
-      case "connected":
-        setShellState(true);
-        logLine(`[shell attached: ${msg.serial}]`, "l-sys");
-        break;
-      case "disconnected":
-        setShellState(false);
-        logLine("[shell detached]", "l-sys");
-        break;
-      case "output":
-        logLine(msg.line, "l-out");
-        break;
-      case "error":
-        logLine("[error] " + msg.message, "l-err");
-        break;
-    }
-  };
-}
-
-connectBtn.addEventListener("click", () => {
-  if (ws && ws.readyState === WebSocket.OPEN){
-    ws.send(JSON.stringify({type:"devices"}));
-  } else {
-    connectBridge();
-  }
-});
-
-attachBtn.addEventListener("click", () => {
-  const serial = deviceSelect.value;
-  if (!serial || serial.startsWith("--")){
-    logLine("[pick a device first]", "l-err");
-    return;
-  }
-  if (!ws || ws.readyState !== WebSocket.OPEN){
-    logLine("[bridge not connected]", "l-err");
-    return;
-  }
-  ws.send(JSON.stringify({type:"connect", serial}));
-});
-
-function sendCommand(line){
-  if (!shellAttached || !ws || ws.readyState !== WebSocket.OPEN){
-    logLine("[attach a shell before sending commands]", "l-err");
-    return;
-  }
-  logLine("$ " + line, "l-cmd");
-  ws.send(JSON.stringify({type:"cmd", line}));
-}
-
-freeformBtn.addEventListener("click", () => {
-  const line = freeformInput.value.trim();
-  if (!line) return;
-  sendCommand(line);
-  freeformInput.value = "";
-});
-freeformInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter"){
-    const line = freeformInput.value.trim();
-    if (!line) return;
-    sendCommand(line);
-    freeformInput.value = "";
-  }
-});
-
-// auto-attempt bridge connect on load
-connectBridge();
+// Start with one session open
+newSession();
 </script>
 
 </body>
